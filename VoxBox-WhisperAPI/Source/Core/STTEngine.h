@@ -28,7 +28,7 @@ namespace VoxBox {
 		whisper_context* m_context = nullptr;
 
 	public:
-		CSTTEngine();
+		explicit CSTTEngine(const SVBWhisperConfig& a_config);
 		~CSTTEngine();
 
 		bool Init(const SVBWhisperConfig& a_config);

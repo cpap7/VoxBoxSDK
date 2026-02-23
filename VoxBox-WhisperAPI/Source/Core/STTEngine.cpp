@@ -2,12 +2,14 @@
 #include "STTEngine.h"
 
 namespace VoxBox {
-	CSTTEngine::CSTTEngine() {
+	CSTTEngine::CSTTEngine(const SVBWhisperConfig& a_config) 
+		: m_config(a_config) {
 
+		Init(a_config);
 	}
 
 	CSTTEngine::~CSTTEngine() {
-
+		Shutdown();
 	}
 
 	bool CSTTEngine::Init(const SVBWhisperConfig& a_config) {
@@ -35,6 +37,10 @@ namespace VoxBox {
 	}
 
 	SSystemConfig CSTTEngine::GetSystemConfig() {
+
+	}
+
+	std::string CSTTEngine::ExtractText(bool a_get_word_probabilities, std::vector<float>& a_probabilities) {
 
 	}
 }
