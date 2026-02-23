@@ -5,3 +5,26 @@
 /Scripts/__pycache__
 /VoxBox-LlamaAPI/VoxBox-LlamaAPI.vcxproj
 /VoxBox-PiperAPI/Notes for automating this later.txt
+/VoxBox-PiperApp/Assets/Models/de_DE-thorsten-high.onnx
+/VoxBox-PiperApp/output.wav
+/VoxBox-PiperApp/VoxBox-PiperApp.vcxproj
+/VoxBox-Shared/VoxBox-Shared.vcxproj
+/VoxBox-PiperApp/VoxBox-PiperApp.vcxproj.user
+/VoxBox-WhisperAPI/AutomationNotes.txt
+/VoxBox-WhisperAPI/ProjectNotes.txt
+/VoxBox-WhisperAPI/VoxBox-WhisperAPI.vcxproj
+/VoxBox-WhisperAPI/VoxBox-WhisperAPI.vcxproj.filters
+/VoxBox-WhisperAPI/VoxBox-WhisperAPI.vcxproj.user
+/VoxBoxSDK.sln
+/VoxBox-PiperApp/Assets/Models/en_US-john-medium.onnx
+/VoxBox-PiperApp/bin
+/VoxBox-PiperApp/bin-int
+/VoxBox-PiperAPI/VoxBox-PiperAPI.vcxproj
+/VoxBox-PiperAPI/VoxBox-PiperAPI.vcxproj.filters
+/VoxBox-PiperAPI/VoxBox-PiperAPI.vcxproj.user
+/VoxBox-PiperAPI/Vendor/piper/release
+/VoxBox-PiperAPI/Vendor/piper/debug
+/VoxBox-WhisperAPI/Vendor/whisper.cpp/release
+/VoxBox-WhisperAPI/Vendor/whisper.cpp/debug
+/VoxBox-PiperAPI/bin
+/VoxBox-PiperAPI/bin-int
