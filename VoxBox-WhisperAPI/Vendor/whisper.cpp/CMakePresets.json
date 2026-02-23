@@ -1,0 +1,44 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "vb-x64-win-debug-static-vulkan",
+      "displayName": "VoxBox: Windows(64-bit) Static Lib Debug build (w/ Vulkan)",
+      "generator": "Visual Studio 18 2026",
+      "binaryDir": "${sourceDir}/debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "GGML_VULKAN": "ON",
+        "BUILD_SHARED_LIBS": "OFF"
+      }
+    },
+    {
+      "name": "vb-x64-win-release-static-vulkan",
+      "displayName": "VoxBox: Windows(64-bit) Static Lib Release build (w/ Vulkan)",
+      "generator": "Visual Studio 18 2026",
+      "binaryDir": "${sourceDir}/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "GGML_VULKAN": "ON",
+        "BUILD_SHARED_LIBS": "OFF"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "vb-x64-win-debug-static-vulkan",
+      "displayName": "VoxBox: Windows(64-bit) Static Lib Debug build (w/ Vulkan)",
+      "configurePreset": "vb-x64-win-debug-static-vulkan"
+    },
+    {
+      "name": "vb-x64-win-release-static-vulkan",
+      "displayName": "VoxBox: Windows(64-bit) Static Lib Release build (w/ Vulkan)",
+      "configurePreset": "vb-x64-win-release-static-vulkan"
+    }
+  ]
+}
