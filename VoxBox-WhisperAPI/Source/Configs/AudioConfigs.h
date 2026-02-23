@@ -4,7 +4,7 @@
 
 namespace VoxBox {
 	// Sampling strategy for decoding
-	enum class VB_STT_API ESamplingStrategy : uint8_t {
+	enum class ESamplingStrategy : uint8_t {
 		None		= 0,
 
 		// Supported strategies
@@ -15,7 +15,7 @@ namespace VoxBox {
 	};
 
 	// Decoder tuning params
-	struct VB_STT_API SDecoderConfig {
+	struct SDecoderConfig {
 		int32_t m_best_of				= 5;	// Greedy	   -- # of best candidates
 		int32_t m_beam_size				= 5;	// Beam Search -- beam width
 		int32_t m_max_context			= -1;	// Max # tokens of a given context (-1 = default)
@@ -26,14 +26,14 @@ namespace VoxBox {
 	};
 
 	// Grammar-constrained decoding
-	struct VB_STT_API SGrammarConfig {
+	struct SGrammarConfig {
 		std::string m_gbnf_grammar;         // GBNF grammar string or file path
 		std::string m_grammar_rule;         // Top-level rule name
 		float m_grammar_penalty = 100.0f;   // Penalty for non-grammar tokens
 	};
 
 	// Audio processing offsets
-	struct VB_STT_API SAudioProcessingConfig {
+	struct SAudioProcessingConfig {
 		int32_t m_offset_t_ms	= 0;        // Time offset in milliseconds
 		int32_t m_offset_n		= 0;        // Segment index offset
 		int32_t m_duration_ms	= 0;        // Duration to process (0 = all)
@@ -41,7 +41,7 @@ namespace VoxBox {
 	};
 
 	// Threshold parameters for quality control
-	struct VB_STT_API SThresholdConfig {
+	struct SThresholdConfig {
 		float m_word_thold		= 0.01f;   // Word timestamp probability threshold
 		float m_entropy_thold	= 2.40f;   // Entropy threshold for decoder fail
 		float m_logprob_thold	= -1.00f;  // Log probability threshold for fail
@@ -49,7 +49,7 @@ namespace VoxBox {
 	};
 
 	// Temperature settings for sampling
-	struct VB_STT_API STemperatureConfig {
+	struct STemperatureConfig {
 		float m_temperature		= 0.0f;    // Initial sampling temperature
 		float m_temperature_inc = 0.2f;    // Temperature increment on fallback
 		bool  m_no_fallback		= false;   // Disable temperature fallback

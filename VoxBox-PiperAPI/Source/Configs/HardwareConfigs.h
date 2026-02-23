@@ -3,7 +3,7 @@
 namespace VoxBox {
 
     // Note: Could possibly use a boolean
-    enum class VB_TTS_API EGPUBackendType : uint8_t {
+    enum class EGPUBackendType : uint8_t {
         None    = 0,
 
         // GPU acceleration options
@@ -14,7 +14,7 @@ namespace VoxBox {
     };
     
     
-    struct VB_TTS_API SHardwareConfig {
+    struct SHardwareConfig {
         EGPUBackendType m_gpu_acceleration_type = EGPUBackendType::Default;
     };
 }

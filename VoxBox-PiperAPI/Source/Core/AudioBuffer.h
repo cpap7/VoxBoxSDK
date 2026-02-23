@@ -20,7 +20,7 @@ namespace VoxBox {
 		CAudioBuffer() = default;
 		~CAudioBuffer() = default;
 
-		// Producer
+		// Producer functions
 		// Called by synthesis thread
 		void Push(const std::vector<int16_t>& a_samples);
 		void MarkAsFinished();

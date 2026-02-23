@@ -4,7 +4,7 @@
 
 namespace VoxBox {
 	
-	enum class VB_STT_API EHardwareBackend : uint8_t {
+	enum class VB_STT_API EHardwareBackendType : uint8_t {
 		Auto	= 0, // whisper.cpp automatically decides
 
 		// Hardware
@@ -15,17 +15,15 @@ namespace VoxBox {
 		Default = Auto
 	};
 	
-	struct VB_STT_API SHardwareConfig {
-		int m_threads = 0;		// Default = 0 --> whisper.cpp auto detects # of threads to use
-
-		EHardwareBackend m_backend = EHardwareBackend::Auto;
-		
-		bool m_use_gpu			= false; // (m_acceleration_backend == EHardwareBackend::CUDA || m_acceleration_backend == EHardwareBackend::Vulkan) ? true : false;
-		//bool m_flash_attention	= false;
+	struct SHardwareConfig {
+		int m_threads					= 0;		// Default = 0 --> whisper.cpp auto detects # of threads to use
+		EHardwareBackendType m_backend	= EHardwareBackendType::Auto;
+		bool m_use_gpu					= false;	// (m_backend == EHardwareBackendType::CUDA || m_backend == EHardwareBackendType::Vulkan) ? true : false;
+		//bool m_flash_attention		= false;
 	};
 
 	// Used for acceleration backend detection at runtime via whisper methods
-	struct VB_STT_API SSystemConfig {
+	struct SSystemConfig {
 		std::string m_system_info; // Via whisper_print_info()
 
 		/* Flags */
@@ -41,7 +39,7 @@ namespace VoxBox {
 	};
 	
 	// OpenVINO acceleration (if compiled with support)
-	struct VB_STT_API SOpenVINOConfig {
+	struct SOpenVINOConfig {
 		std::string m_encode_device = "CPU";  // OpenVINO encoder device
 	};
 }

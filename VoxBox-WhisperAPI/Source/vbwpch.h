@@ -11,7 +11,7 @@
 
 #include "../VoxBox-Shared/Source/PlatformDetection.h"
 
-// Macros are included here for internal global usage
+// Macros are included here for internal global internal usage
 // They're also defined under the API header file for external usage
 #ifdef VB_EXPORT_STT
 	#define VB_STT_API VB_DLL_EXPORT

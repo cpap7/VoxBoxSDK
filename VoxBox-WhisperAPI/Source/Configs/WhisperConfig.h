@@ -8,7 +8,7 @@
 namespace VoxBox {
 
     // Advanced feature flags
-    struct VB_STT_API SFeatureConfig {
+    struct SFeatureConfig {
         std::string m_suppress_regex;      // Regex for token suppression
         std::string m_tdrz_speaker_turn = " [SPEAKER_TURN]";
 

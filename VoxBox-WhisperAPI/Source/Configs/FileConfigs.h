@@ -4,7 +4,7 @@
 namespace VoxBox {
 
 	// Model config
-	struct VB_STT_API SModelConfig {
+	struct SModelConfig {
 		std::string m_model_path	 = "";
 		std::string m_initial_prompt = "";
 		std::string m_language		 = "en";
@@ -18,13 +18,13 @@ namespace VoxBox {
 	};
 
 	// DTW (Dynamic Time Warping) for token timestamps
-	struct VB_STT_API SDTWConfig {
+	struct SDTWConfig {
 		std::string m_model_preset;        // e.g., "base.en", "large.v3"
 		bool m_enabled = false;
 	};
 
 	// Output format flags
-	struct VB_STT_API SOutputConfig {
+	struct SOutputConfig {
 		bool m_timestamps		= true;     // Include timestamps
 		bool m_word_timestamps	= false;    // Token-level timestamps
 		bool m_split_on_word	= false;    // Split on word vs token
