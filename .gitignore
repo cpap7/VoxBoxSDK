@@ -1,0 +1,7 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/Scripts/__pycache__
+/VoxBox-LlamaAPI/VoxBox-LlamaAPI.vcxproj
+/VoxBox-PiperAPI/Notes for automating this later.txt
