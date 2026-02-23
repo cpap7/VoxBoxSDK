@@ -1,0 +1,40 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "vb-x64-windows-debug",
+      "displayName": "VoxBox: Windows (64-bit) debug build configuration",
+      "binaryDir": "${sourceDir}/debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "vb-x64-windows-release",
+      "displayName": "VoxBox: Windows (64-bit) release build configuration",
+      "binaryDir": "${sourceDir}/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "vb-x64-windows-debug",
+      "displayName": "VoxBox: Windows (64-bit) debug build",
+      "configurePreset": "vb-x64-windows-debug",
+      "configuration": "Debug"
+    },
+    {
+      "name": "vb-x64-windows-release",
+      "displayName": "VoxBox: Windows (64-bit) release build",
+      "configurePreset": "vb-x64-windows-release",
+      "configuration": "Release"
+    }
+  ]
+}
