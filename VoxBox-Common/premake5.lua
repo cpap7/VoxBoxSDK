@@ -1,5 +1,5 @@
 -- premake5.lua
-project "VoxBox-Shared"
+project "VoxBox-Common"
     kind "Utility"
     language "C++"
     cppdialect "C++20"
@@ -13,11 +13,17 @@ project "VoxBox-Shared"
         "Source", 
     }
 
+    defines {
+      "VB_STT_EXPORT",
+      "VB_TTS_EXPORT",
+      "VB_LLM_EXPORT"
+    }
+
     filter "system:windows"
         systemversion "latest"
         --characterset "Unicode"
         defines { 
-            "_WINDOWS",
+            "_WINDOWS"
         }
 
     filter "configurations:Debug"

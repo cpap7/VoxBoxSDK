@@ -52,11 +52,56 @@
 
 // DLL macros
 #ifdef VB_PLATFORM_WINDOWS
-    #define VB_DLL_EXPORT __declspec(dllexport)
-    #define VB_DLL_IMPORT __declspec(dllimport)
+    // Speech-to-text API
+    #ifdef VB_EXPORT_STT
+        #define VB_STT_API __declspec(dllexport)
+    #else
+        #define VB_STT_API __declspec(dllimport)
+    #endif
+
+    // Text-to-speech API
+    #ifdef VB_EXPORT_TTS
+        #define VB_TTS_API __declspec(dllexport)
+    #else
+        #define VB_TTS_API __declspec(dllimport)
+    #endif
+
+    // LLM API
+    #ifdef VB_EXPORT_LLM
+        #define VB_LLM_API __declspec(dllexport)
+    #else
+        #define VB_LLM_API __declspec(dllimport)
+    #endif
+
+    // Common macros
+    #define VB_CALL __stdcall
 #else
-    #define VB_DLL_EXPORT __attribute__((visibility("default")))
-    #define VB_DLL_IMPORT
+    #define VB_STT_API
+    #define VB_TTS_API
+    #define VB_LLM_API
+    #define VB_CALL
 #endif // VB_PLATFORM_WINDOWS
 
 
+#ifdef __cplusplus
+#include <cstdint>
+#include <functional>
+
+namespace VoxBox {
+    // Common callback function types
+    using ProgressCallbackFn = std::function<void(int a_progress)>;
+
+    // Common result codes
+    enum class EResultCode : uint8_t {
+        Success = 0,
+        NotInitialized,
+        InvalidParameter,
+        ModelLoadFailed,
+        ProcessingFailed,
+        Cancelled,
+        OutOfMemory
+    };
+    
+}
+
+#endif

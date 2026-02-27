@@ -20,12 +20,6 @@ Library = {}
 Library["Vulkan"] = "%{LibraryDir.VulkanSDK}/vulkan-1.lib"
 
 
-group "Dependencies"
-   --include "VoxBox-Llama/Vendor/llama"
-   --include "VoxBox-Piper/Vendor/piper"
-   --include "VoxBox-Whisper/Vendor/whisper"
-group ""
-
 group "Applications"
 --   include "VoxBox-LlamaApp"
    include "VoxBox-PiperApp"
@@ -39,5 +33,5 @@ group "APIs"
 group ""
 
 group "Misc"
-	include "VoxBox-Shared"
+	include "VoxBox-Common"
 group ""

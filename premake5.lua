@@ -21,3 +21,5 @@ include "VoxBox-PiperApp"
 include "VoxBox-LlamaAPI"
 include "VoxBox-PiperAPI"
 include "VoxBox-WhisperAPI"
+
+include "VoxBox-Common"
