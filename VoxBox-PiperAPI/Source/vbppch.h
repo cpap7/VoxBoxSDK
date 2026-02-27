@@ -1,42 +1,65 @@
 #pragma once
 
-// Precompiled header
+//  Platform Detection 
+#ifdef _WIN32
+	#define VB_PLATFORM_WINDOWS
+#elif defined(__APPLE__)
+	#define VB_PLATFORM_MACOS
+#elif defined(__linux__)
+	#define VB_PLATFORM_LINUX
+#endif
+
+// Platform-Specific Headers
+#ifdef VB_PLATFORM_WINDOWS
+	#ifndef WIN32_LEAN_AND_MEAN
+		#define WIN32_LEAN_AND_MEAN
+	#endif
+	#include <windows.h>
+#elif defined(VB_PLATFORM_MACOS)
+	#include <mach-o/dyld.h>
+	#include <climits>  // For PATH_MAX
+#elif defined(VB_PLATFORM_LINUX)
+	#include <climits>  // For PATH_MAX
+#endif
+
+// Standard Library 
+#ifdef __cplusplus
+	#include <cstdint>
+	#include <cstdbool>
+#else
+	#include <stdint.h>
+	#include <stdbool.h>
+#endif
 
 #include <cassert>
-
-#ifdef __cplusplus
-	#include <cstdbool>
-	#include <cstdint>
-#else
-	#include <stdbool.h>
-	#include <stdint.h>
-#endif // __cplusplus
-
-
 #include <condition_variable>
 #include <filesystem>
 #include <fstream>
 #include <functional>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <mutex>
+#include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <thread>
 #include <vector>
-#include <memory>
-#include <optional>
 
-#include "../VoxBox-Shared/Source/PlatformDetection.h"
-
-// Macros are included here for internal global usage
-// They're also defined under the API header file for external usage
-
+// DLL Macros
 #ifdef VB_PLATFORM_WINDOWS
-	#ifdef VB_EXPORT_TTS
-		#define VB_TTS_API VB_DLL_EXPORT
-	#else
-		#define VB_TTS_API VB_DLL_IMPORT
-	#endif // VB_EXPORT_TTS
-#endif // VB_PLATFORM_WINDOWS
+	#define VB_DLL_EXPORT __declspec(dllexport)
+	#define VB_DLL_IMPORT __declspec(dllimport)
+	#define VB_CALL __stdcall
+#else
+	#define VB_DLL_EXPORT
+	#define VB_DLL_IMPORT
+	#define VB_CALL
+#endif
+
+#ifdef VB_EXPORT_TTS
+	#define VB_TTS_API VB_DLL_EXPORT
+#else
+	#define VB_TTS_API VB_DLL_IMPORT
+#endif

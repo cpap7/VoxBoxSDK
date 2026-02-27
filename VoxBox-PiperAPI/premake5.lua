@@ -14,12 +14,17 @@ project "VoxBox-PiperAPI"
     files {
         "Source/**.cpp",
         "Source/**.h",
+        
+        "../../VoxBox-Common/Source/**.h",
+
         "Vendor/piper/src/cpp/piper.cpp"
     }
 
     includedirs {
         "Source",
-        "../VoxBox-Shared",
+        
+        "../../VoxBox-Common/Source",
+        
         "Vendor/piper/build/pi/include",
         "Vendor/piper/src/cpp",
         "Vendor/piper/build/si/include",

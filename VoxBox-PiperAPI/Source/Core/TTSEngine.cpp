@@ -3,19 +3,19 @@
 
 
 namespace VoxBox {
-	//CTTSEngine::CTTSEngine() { }
+	//CCoreTTSEngine::CCoreTTSEngine() { }
 
-	CTTSEngine::CTTSEngine(const SVBPiperConfig& a_piper_config)
-		: m_audio_buffer(std::make_unique<CAudioBuffer>()) {
+	CCoreTTSEngine::CCoreTTSEngine(const STTSConfig& a_piper_config)
+		: m_audio_buffer(std::make_unique<CCoreTTSAudioBuffer>()) {
 
 		Init(a_piper_config);
 	}
 
-	CTTSEngine::~CTTSEngine() {
+	CCoreTTSEngine::~CCoreTTSEngine() {
 		Shutdown();
 	}
 
-	void CTTSEngine::Init(const SVBPiperConfig& a_config) {
+	void CCoreTTSEngine::Init(const STTSConfig& a_config) {
 		if (m_is_initialized) {
 			Shutdown();
 		}
@@ -35,12 +35,12 @@ namespace VoxBox {
 		m_is_initialized = true;
 	}
 
-	void CTTSEngine::Reinit(const SVBPiperConfig& a_config) {
+	void CCoreTTSEngine::Reinit(const STTSConfig& a_config) {
 		Shutdown();
 		Init(a_config);
 	}
 
-	void CTTSEngine::Shutdown() {
+	void CCoreTTSEngine::Shutdown() {
 		if (!m_is_initialized) {
 			return;
 		}
@@ -58,7 +58,7 @@ namespace VoxBox {
 		m_is_initialized = false;
 	}
 
-	std::vector<int16_t> CTTSEngine::Synthesize(const char* a_text) {
+	std::vector<int16_t> CCoreTTSEngine::Synthesize(const char* a_text) {
 		assert(m_is_initialized);
 		assert(a_text != nullptr);
 
@@ -77,7 +77,7 @@ namespace VoxBox {
 		return audio_buffer;
 	}
 
-	void CTTSEngine::SynthesizeToWAVFile(const char* a_text, const char* a_wav_path) {
+	void CCoreTTSEngine::SynthesizeToWAVFile(const char* a_text, const char* a_wav_path) {
 		assert(m_is_initialized);
 		assert(a_text != nullptr);
 		assert(a_wav_path != nullptr);
@@ -94,7 +94,7 @@ namespace VoxBox {
 		);
 	}
 
-	void CTTSEngine::SynthesizeStreaming(std::istream& a_input, std::ostream& a_output) {
+	void CCoreTTSEngine::SynthesizeStreaming(std::istream& a_input, std::ostream& a_output) {
 		assert(m_is_initialized);
 
 		std::string line;
@@ -131,21 +131,21 @@ namespace VoxBox {
 		}
 	}
 
-	void CTTSEngine::SetSynthesisConfig(const SSynthesisConfig& a_synthesis_config) {
-		m_config.m_synthesis = a_synthesis_config;
+	void CCoreTTSEngine::SetSynthesisConfig(const SSynthesisConfig& a_synthesis_config) {
+		m_config.m_synthesis_config = a_synthesis_config;
 
 		if (m_is_initialized) {
 			ApplySynthesisConfig();
 		}
 	}
 
-	void CTTSEngine::LoadVoice() {
-		bool use_cuda = (m_config.m_acceleration.m_gpu_acceleration_type == EGPUBackendType::Cuda);
+	void CCoreTTSEngine::LoadVoice() {
+		bool use_cuda = (m_config.m_hardware_config.m_gpu_acceleration_type == EGPUBackendType::Cuda);
 		
 		piper::loadVoice(
 			*m_piper_config,
-			m_config.m_voice_config.m_model_path.string(),
-			m_config.m_voice_config.m_model_config_path.string(),
+			m_config.m_voice_config.m_model_onnx_path.string(),
+			m_config.m_voice_config.m_model_onnx_json_path.string(),
 			*m_piper_voice,
 			m_speaker_id,
 			use_cuda		
@@ -153,9 +153,9 @@ namespace VoxBox {
 
 		// Configure espeak-ng data path
 		if (m_piper_voice->phonemizeConfig.phonemeType == piper::eSpeakPhonemes) {
-			if (m_config.m_dependencies.m_espeak_data_path) { 
+			if (m_config.m_voice_config.m_espeak_data_path != "") {
 				// Set to user provided path
-				m_piper_config->eSpeakDataPath = m_config.m_dependencies.m_espeak_data_path.value().string();
+				m_piper_config->eSpeakDataPath = m_config.m_voice_config.m_espeak_data_path.string();
 			}
 			else { // Assume it's next to the executable binary file
 				m_piper_config->eSpeakDataPath = std::filesystem::absolute(GetExecutablePath().parent_path() / "espeak-ng-data").string();
@@ -169,9 +169,9 @@ namespace VoxBox {
 		if(m_piper_voice->phonemizeConfig.eSpeak.voice == "ar") {
 			m_piper_config->useTashkeel = true;
 
-			if (m_config.m_dependencies.m_tashkeel_model_path) {
+			if (m_config.m_voice_config.m_tashkeel_model_path) {
 				// Set to user provided path
-				m_piper_config->tashkeelModelPath = m_config.m_dependencies.m_tashkeel_model_path.value().string();
+				m_piper_config->tashkeelModelPath = m_config.m_voice_config.m_tashkeel_model_path.value().string();
 			}
 			else { // Assume it's next to the executable binary file
 				m_piper_config->tashkeelModelPath = std::filesystem::absolute(GetExecutablePath().parent_path() / "libtashkeel_model.ort").string();
@@ -179,9 +179,9 @@ namespace VoxBox {
 		}
 	}
 
-	void CTTSEngine::ApplySynthesisConfig() {
+	void CCoreTTSEngine::ApplySynthesisConfig() {
 		auto& piper_synthesis_config = m_piper_voice->synthesisConfig;
-		const auto& vb_synthesis_config = m_config.m_synthesis;
+		const auto& vb_synthesis_config = m_config.m_synthesis_config;
 
 		// Adjust piper config values to user-specified values if available
 		if (vb_synthesis_config.m_noise_scale) {
@@ -211,7 +211,7 @@ namespace VoxBox {
 		}
 	}
 
-	std::filesystem::path CTTSEngine::GetExecutablePath() {
+	std::filesystem::path CCoreTTSEngine::GetExecutablePath() {
 #ifdef _MSC_VER // Windows
 		wchar_t module_path[MAX_PATH] = { 0 };
 		GetModuleFileNameW(nullptr, module_path, std::size(module_path));

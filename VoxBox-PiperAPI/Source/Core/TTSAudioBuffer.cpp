@@ -1,10 +1,10 @@
 #include "vbppch.h"
-#include "AudioBuffer.h"
+#include "TTSAudioBuffer.h"
 
 namespace VoxBox {
 
 	
-	void CAudioBuffer::Push(const std::vector<int16_t>& a_samples) {
+	void CCoreTTSAudioBuffer::Push(const std::vector<int16_t>& a_samples) {
 		std::lock_guard<std::mutex> lock(m_mutex);
 
 		m_shared_buffer.insert(m_shared_buffer.end(), a_samples.begin(), a_samples.end());
@@ -13,7 +13,7 @@ namespace VoxBox {
 		m_condition.notify_one();
 	}
 
-	void CAudioBuffer::MarkAsFinished() {
+	void CCoreTTSAudioBuffer::MarkAsFinished() {
 		std::lock_guard<std::mutex> lock(m_mutex);
 
 		m_audio_is_finished = true;
@@ -23,7 +23,7 @@ namespace VoxBox {
 	}
 
 	
-	bool CAudioBuffer::WaitAndConsume(std::vector<int16_t>& a_out_samples) {
+	bool CCoreTTSAudioBuffer::WaitAndConsume(std::vector<int16_t>& a_out_samples) {
 		std::unique_lock<std::mutex> lock(m_mutex);
 
 		m_condition.wait(lock, [this] { 
@@ -45,7 +45,7 @@ namespace VoxBox {
 		return true;
 	}
 
-	void CAudioBuffer::Reset() {
+	void CCoreTTSAudioBuffer::Reset() {
 		std::lock_guard<std::mutex> lock(m_mutex);
 
 		m_shared_buffer.clear();
@@ -56,7 +56,7 @@ namespace VoxBox {
 		//m_condition.notify_one();
 	}
 	
-	size_t CAudioBuffer::GetSharedBufferSize() const {
+	size_t CCoreTTSAudioBuffer::GetSharedBufferSize() const {
 		return m_shared_buffer.size();
 	}
 }

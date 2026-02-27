@@ -2,7 +2,7 @@
 
 namespace VoxBox {
 
-	class VB_TTS_API CAudioBuffer {
+	class CCoreTTSAudioBuffer {
 	private:
 		std::mutex m_mutex;
 		std::condition_variable m_condition;		// For consumer thread: blocking 
@@ -17,8 +17,8 @@ namespace VoxBox {
 		bool m_audio_is_finished = false;
 
 	public:
-		CAudioBuffer() = default;
-		~CAudioBuffer() = default;
+		CCoreTTSAudioBuffer() = default;
+		~CCoreTTSAudioBuffer() = default;
 
 		// Producer functions
 		// Called by synthesis thread
@@ -39,7 +39,7 @@ namespace VoxBox {
 		size_t GetSharedBufferSize() const;
 		//inline bool IsFinished() const		{ return m_audio_is_finished;	}
 		//inline bool IsReady() const			{ return m_audio_is_ready;		}
-		inline int GetSampleRate() const	{ return m_sample_rate;			}
+		inline int GetSampleRate() const		{ return m_sample_rate;			}
 	};
 }
 
