@@ -9,11 +9,14 @@ project "VoxBox-PiperApp"
 
     files {
         "Source/**.h",
+        "Source/**.c",
+        "Source/**.hpp",
         "Source/**.cpp"
     }
 
     includedirs {
         "../VoxBox-PiperAPI/Source/API",        -- For VoxBoxTTS.h
+        "../VoxBox-Common/Source",              -- For VBCommon.h
     }
 
     libdirs {
