@@ -33,8 +33,28 @@ def build(config: str, force_rebuild: bool = False):
         print(f"[SETUP] Whisper.cpp ({config}) complete (from cache)")
         return
 
-    # Configure and build using presets
+    # Configure CMake
+    print(f"  Configuring with preset: {preset}")
     subprocess.run(["cmake", "--preset", preset], cwd=WHISPER_DIR, check=True)
-    subprocess.run(["cmake", "--build", "--preset", preset], cwd=WHISPER_DIR, check=True)
 
-    print(f"[SETUP] Whisper.cpp ({config}) complete")
+    # Build using presets
+    print(f" Building...")
+    subprocess.run(["cmake", "--build", "--preset", preset], cwd=WHISPER_DIR, check=True)
+    
+    # Verify output
+    if whisper_lib.exists():
+        print(f"[SETUP] Whisper.cpp ({config}) complete")
+    else:
+        print(f"[ERROR] whisper.lib not found at expected path: {whisper_lib}")
+        # List what was actually created
+        print(f"  Contents of {cache_dir / 'src'}:")
+        if (cache_dir / "src").exists():
+            for item in (cache_dir / "src").rglob("*.lib"):
+                print(f"    {item}")
+
+if __name__ == "__main__":
+    import sys
+    force = "--force" in sys.argv
+    build("Debug", force)
+    build("Release", force)    
+    

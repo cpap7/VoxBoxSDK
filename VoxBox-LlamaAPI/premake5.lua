@@ -2,6 +2,7 @@
 project "VoxBox-LlamaAPI"
     kind "SharedLib"
     language "C++"
+    cppdialect "C++20"
 
     -- Sources 
     files {
@@ -27,6 +28,7 @@ project "VoxBox-LlamaAPI"
 
     -- Common defines
     filter "system:windows"
+        toolset "v145" -- VS 2026
         defines {
             "_CRT_SECURE_NO_WARNINGS",
             "VB_EXPORT_LLM",
@@ -34,14 +36,6 @@ project "VoxBox-LlamaAPI"
             "_WINDOWS",
             "_USRDLL",
         }
-    filter {}
-
-    -- Dialect: vcxproj uses C++20, Makefile uses C++17
-    filter "system:windows"
-        cppdialect "C++20"
-    filter "not system:windows"
-        cppdialect "C++17"
-        pic "On"
     filter {}
 
     -- Config-specific defines
@@ -55,6 +49,7 @@ project "VoxBox-LlamaAPI"
     -- Windows (x64): link against prebuilt llama.cpp libs
     -------------------------------------------------------------------------
     filter { "system:windows", "platforms:x64", "configurations:Debug" }
+
         libdirs {
             "Vendor/llama/build-x64-windows-msvc-debug/src",
             "Vendor/llama/build-x64-windows-msvc-debug/ggml/src",
@@ -67,6 +62,7 @@ project "VoxBox-LlamaAPI"
             "ggml-cpu",
             "common",
         }
+
 
     filter { "system:windows", "platforms:x64", "configurations:Release" }
         libdirs {

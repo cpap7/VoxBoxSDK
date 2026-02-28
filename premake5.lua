@@ -8,15 +8,13 @@ workspace "VoxBoxSDK"
     platforms { "x64" }
 
 	outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
-	startproject "VoxBox-PiperApp"
+	startproject "VoxBox-TestApp"
 
     filter {}
 	
 include "External.lua"
 
---include "VoxBox-LlamaApp"
-include "VoxBox-PiperApp"
---include "VoxBox-WhisperApp"
+include "VoxBox-TestApp"
 
 include "VoxBox-LlamaAPI"
 include "VoxBox-PiperAPI"

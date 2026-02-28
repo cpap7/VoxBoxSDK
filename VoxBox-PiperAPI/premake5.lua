@@ -2,6 +2,8 @@
 project "VoxBox-PiperAPI"
     kind "SharedLib"
     language "C++"
+    cppdialect "C++20"
+
     targetdir ("bin/%{cfg.buildcfg}-%{cfg.architecture}")
     objdir ("bin-int/%{cfg.buildcfg}-%{cfg.architecture}")
     
@@ -32,7 +34,7 @@ project "VoxBox-PiperAPI"
 
     filter "system:windows"
         systemversion "latest"
-        cppdialect "C++20"
+        toolset "v145" -- VS 2026
         defines { "_WINDOWS", "_USRDLL" , "VB_EXPORT_TTS" }
         flags { "MultiProcessorCompile" }
         vectorextensions "AVX2"
@@ -49,7 +51,6 @@ project "VoxBox-PiperAPI"
 
 
     filter "system:linux"
-        cppdialect "C++17" -- per CMakeLists.txt
         pic "On"
         libdirs { "Vendor/piper/build/pi/lib" }
         links {

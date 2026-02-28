@@ -21,7 +21,7 @@ project "VoxBox-Common"
 
     filter "system:windows"
         systemversion "latest"
-        --characterset "Unicode"
+        toolset "v145" -- VS 2026
         defines { 
             "_WINDOWS"
         }
