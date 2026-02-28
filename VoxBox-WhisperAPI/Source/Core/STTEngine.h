@@ -1,51 +1,51 @@
 #pragma once
-#include "./Configs/WhisperConfig.h"
-#include "./Utilities/ProgressTracker.h"
+#include "STTConfig.h"
+#include "STTProgressTracker.h"
+#include "STTResults.h"
 
 #include <vector>
-#include <string>
 #include <memory>
 
 // Forward declarations
 struct whisper_context;
+struct whisper_full_params;
 
 namespace VoxBox {
 	
-	struct VB_STT_API STranscriptResult {
-		std::string m_text;
-		
-		std::vector<float> m_word_probabilities;
-		std::vector<int> m_part_indices;
-
-		bool m_sucess = false;
-	};
-	
-
-	class VB_STT_API CSTTEngine {
+	class CCoreSTTEngine {
 	private:
-		SVBWhisperConfig m_config;
-		CProgressTracker m_progress_tracker;
+		SSTTConfig m_config;
+		CCoreSTTProgressTracker m_progress_tracker;
+
+		// whisper.cpp 
 		whisper_context* m_context = nullptr;
 
 	public:
-		explicit CSTTEngine(const SVBWhisperConfig& a_config);
-		~CSTTEngine();
+		explicit CCoreSTTEngine(const SSTTConfig& a_config);
+		~CCoreSTTEngine();
 
-		bool Init(const SVBWhisperConfig& a_config);
+		void Init(const SSTTConfig& a_config);
 		void Shutdown();
 
 		STranscriptResult Transcribe(const float* a_audio_data, int a_audio_length, bool a_get_word_probabilities = false);
-		STranscriptResult TranscribeParts(const float* a_audio_data, const std::vector<int>& a_part_starts, const std::vector<int>& a_part_ends, bool a_get_word_probabilities = false);
+		STranscriptResult TranscribeParts(const float* a_audio_data, const std::vector<int>& a_part_starts, 
+			const std::vector<int>& a_part_ends, bool a_get_word_probabilities = false);
 
-		void SetProgressCallback(ProgressCallbackFn a_callback);
-		void Cancel();
+		SLanguageResult DetectLanguage(const float* a_audio_data, int a_audio_length);
 
-		SSystemConfig GetSystemConfig();
+		// Setters
+		inline void SetProgressCallback(ProgressCallbackFn a_callback)	{ m_progress_tracker.SetCallback(a_callback);	}
+		inline void Cancel()											{ m_progress_tracker.Cancel();					}
 
+		// Getters
+		inline bool IsLoaded() const									{ return m_context != nullptr;		}
+		inline const SSystemConfig& GetSystemConfig() const				{ return m_config.m_system_config;	}
+		
 
-	private:
-		std::string ExtractText(bool a_get_word_probabilities, std::vector<float>& a_probabilities);
-
+	private: // Helpers
+		std::string ExtractTextTokens(std::vector<float>& a_probabilities, bool a_get_word_probabilities);
+		void UpdateWhisperContext(whisper_full_params& a_params, int a_part_index);
+		void UpdateWhisperParams(whisper_full_params& a_params, int a_part_index = 0);
 	};
 }
 
