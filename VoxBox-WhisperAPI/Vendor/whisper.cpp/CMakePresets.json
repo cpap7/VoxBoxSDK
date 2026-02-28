@@ -8,24 +8,36 @@
   "configurePresets": [
     {
       "name": "vb-x64-win-debug-static-vulkan",
-      "displayName": "VoxBox: Windows(64-bit) Static Lib Debug build (w/ Vulkan)",
+      "displayName": "VB: x64 Debug Static (native)",
+      "description": "VoxBox: Windows(64-bit) Static Lib Debug build (w/ Vulkan)",
       "generator": "Visual Studio 18 2026",
       "binaryDir": "${sourceDir}/debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_STANDARD": "20",
+        "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDebugDLL",
         "GGML_VULKAN": "ON",
-        "BUILD_SHARED_LIBS": "OFF"
+        "BUILD_SHARED_LIBS": "OFF",
+        "WHISPER_BUILD_TESTS": "OFF",
+        "WHISPER_BUILD_EXAMPLES": "OFF"
       }
     },
     {
       "name": "vb-x64-win-release-static-vulkan",
-      "displayName": "VoxBox: Windows(64-bit) Static Lib Release build (w/ Vulkan)",
+      "displayName": "VB: x64 Release Static (native)",
+      "description": "VoxBox: Windows(64-bit) Static Lib Release build (w/ Vulkan)",
       "generator": "Visual Studio 18 2026",
       "binaryDir": "${sourceDir}/release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_STANDARD": "20",
+        "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDLL",
         "GGML_VULKAN": "ON",
-        "BUILD_SHARED_LIBS": "OFF"
+        "BUILD_SHARED_LIBS": "OFF",
+        "WHISPER_BUILD_TESTS": "OFF",
+        "WHISPER_BUILD_EXAMPLES": "OFF"
       }
     }
   ],
@@ -33,12 +45,14 @@
     {
       "name": "vb-x64-win-debug-static-vulkan",
       "displayName": "VoxBox: Windows(64-bit) Static Lib Debug build (w/ Vulkan)",
-      "configurePreset": "vb-x64-win-debug-static-vulkan"
+      "configurePreset": "vb-x64-win-debug-static-vulkan",
+      "configuration": "Debug"
     },
     {
       "name": "vb-x64-win-release-static-vulkan",
       "displayName": "VoxBox: Windows(64-bit) Static Lib Release build (w/ Vulkan)",
-      "configurePreset": "vb-x64-win-release-static-vulkan"
+      "configurePreset": "vb-x64-win-release-static-vulkan",
+      "configuration": "Release"
     }
   ]
 }
