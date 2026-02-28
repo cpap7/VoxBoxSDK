@@ -38,3 +38,5 @@
 /VoxBox-TestApp/Assets/Models/en_US-john-medium.onnx
 /VoxBox-TestApp/bin
 /VoxBox-TestApp/bin-int
+/VoxBox-WhisperAPI/bin
+/VoxBox-WhisperAPI/bin-int
