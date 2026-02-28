@@ -29,3 +29,8 @@
 /VoxBox-PiperAPI/bin
 /VoxBox-PiperAPI/bin-int
 /.vs
+/VoxBox-Common/VoxBox-Common.vcxproj
+/VoxBox-Common/VoxBox-Common.vcxproj.user
+/VoxBox-LlamaAPI/VoxBox-LlamaAPI.vcxproj.user
+/VoxBox-TestApp/VoxBox-TestApp.vcxproj
+/VoxBox-TestApp/VoxBox-TestApp.vcxproj.user
