@@ -1,5 +1,7 @@
 #pragma once
 
+// Precompiled header -- used internally for .cpp files
+
 //  Platform Detection 
 #ifdef _WIN32
 	#define VB_PLATFORM_WINDOWS
@@ -46,6 +48,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+
 
 // DLL Macros
 #ifdef VB_PLATFORM_WINDOWS

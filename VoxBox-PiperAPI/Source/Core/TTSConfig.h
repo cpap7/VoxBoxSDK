@@ -43,6 +43,8 @@ namespace VoxBox {
     //////////////////////////////////////////////////////
 
     // Top-level config struct for interfacing with Piper
+    // Used by the API class CVBTTSEngine (see VoxBoxTTS.h) 
+    // and the internal core class (see TTSEngine.h)
     struct VB_TTS_API STTSConfig {
         SVoiceModelConfig   m_voice_config;
         SSynthesisConfig    m_synthesis_config;

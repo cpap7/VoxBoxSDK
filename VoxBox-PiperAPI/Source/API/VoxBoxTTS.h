@@ -10,8 +10,8 @@
     #include <functional>
     #include <optional>
     #include <filesystem>
+    #include <atomic>
     #include "../Core/TTSConfig.h"
-
 #else
     #include <stdint.h>
    //#include <stddef.h>
@@ -137,7 +137,7 @@ namespace VoxBox {
         
         // Don't need copies
         CVBTTSEngine(const CVBTTSEngine&) = delete;
-        CVBTTSEngine& operator=(const CVBTTSEngine&) = delete;
+        void operator=(const CVBTTSEngine&) = delete;
         
         CVBTTSEngine(CVBTTSEngine&& a_other) noexcept;
         void operator=(CVBTTSEngine&& a_other) noexcept;
@@ -160,8 +160,6 @@ namespace VoxBox {
         void SetProgressCallback(ProgressCallbackFn a_callback_function);
         void Cancel();
 
-       
-        
         // Factory
         static std::unique_ptr<CVBTTSEngine> Create(const STTSConfig& a_config);
 
@@ -169,6 +167,5 @@ namespace VoxBox {
         static const char* GetVersion();
         static STTSConfig GetDefaultConfig();
     };
-}
-
+} // namespace VoxBox
 #endif

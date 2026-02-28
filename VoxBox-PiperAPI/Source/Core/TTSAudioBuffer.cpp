@@ -2,8 +2,6 @@
 #include "TTSAudioBuffer.h"
 
 namespace VoxBox {
-
-	
 	void CCoreTTSAudioBuffer::Push(const std::vector<int16_t>& a_samples) {
 		std::lock_guard<std::mutex> lock(m_mutex);
 
