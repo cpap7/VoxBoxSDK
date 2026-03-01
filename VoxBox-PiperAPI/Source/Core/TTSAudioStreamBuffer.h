@@ -1,8 +1,11 @@
 #pragma once
+#include <mutex>
+#include <condition_variable>
+#include <vector>
+#include <cstdint>
 
 namespace VoxBox {
-
-	class CCoreTTSAudioBuffer {
+	class CCoreTTSAudioStreamBuffer {
 	private:
 		std::mutex m_mutex;
 		std::condition_variable m_condition;		// For consumer thread: blocking 
@@ -17,8 +20,8 @@ namespace VoxBox {
 		bool m_audio_is_finished = false;
 
 	public:
-		CCoreTTSAudioBuffer() = default;
-		~CCoreTTSAudioBuffer() = default;
+		CCoreTTSAudioStreamBuffer() = default;
+		~CCoreTTSAudioStreamBuffer() = default;
 
 		// Producer functions
 		// Called by synthesis thread
@@ -36,10 +39,10 @@ namespace VoxBox {
 		inline void SetSampleRate(int a_rate) { m_sample_rate = a_rate; }
 
 		// Getters
-		size_t GetSharedBufferSize() const;
-		//inline bool IsFinished() const		{ return m_audio_is_finished;	}
-		//inline bool IsReady() const			{ return m_audio_is_ready;		}
-		inline int GetSampleRate() const		{ return m_sample_rate;			}
+		inline int SampleCount() const		{ return static_cast<int>(m_shared_buffer.size());	}
+		inline int SampleRate() const		{ return m_sample_rate;								}
+		inline const int16_t* Data() const	{ return m_shared_buffer.data();					}
+		inline bool IsEmpty() const			{ return m_shared_buffer.empty();					}
 	};
 }
 

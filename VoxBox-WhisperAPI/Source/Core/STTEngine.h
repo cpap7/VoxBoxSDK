@@ -12,7 +12,7 @@ struct whisper_full_params;
 
 namespace VoxBox {
 	
-	class CCoreSTTEngine {
+	class CSTTEngineImpl {
 	private:
 		SSTTConfig m_config;
 		CCoreSTTProgressTracker m_progress_tracker;
@@ -21,10 +21,10 @@ namespace VoxBox {
 		whisper_context* m_context = nullptr;
 
 	public:
-		explicit CCoreSTTEngine(const SSTTConfig& a_config);
-		~CCoreSTTEngine();
+		explicit CSTTEngineImpl(const SSTTConfig& a_config);
+		~CSTTEngineImpl();
 
-		void Init(const SSTTConfig& a_config);
+		void Init();
 		void Shutdown();
 
 		STranscriptResult Transcribe(const float* a_audio_data, int a_audio_length, bool a_get_word_probabilities = false);

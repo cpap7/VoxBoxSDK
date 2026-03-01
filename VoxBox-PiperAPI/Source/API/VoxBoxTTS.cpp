@@ -27,13 +27,13 @@ static VoxBox::STTSConfig ConvertTTSConfig(const VB_TTS_Config_t* a_config) {
 
 VB_TTS_API VB_TTS_EngineHandle_t VB_CALL VB_TTS_Create(const VB_TTS_Config_t* a_config) {
 	if (!a_config || !a_config->m_model_onnx_path || !a_config->m_model_onnx_json_path) {
-		printf("[VB TTS] Error: Missing model or model json path.\n");
+		printf("[VoxBox TTS] Error: Missing model or model json path.\n");
 		return nullptr;
 	}
 
 	try {
 		VoxBox::STTSConfig config = ConvertTTSConfig(a_config);
-		auto* tts_engine = new VoxBox::CCoreTTSEngine(config);
+		auto* tts_engine = new VoxBox::CTTSEngineImpl(config);
 		return reinterpret_cast<VB_TTS_EngineHandle_t>(tts_engine);
 	}
 	catch (...) {
@@ -44,7 +44,7 @@ VB_TTS_API VB_TTS_EngineHandle_t VB_CALL VB_TTS_Create(const VB_TTS_Config_t* a_
 
 VB_TTS_API void VB_CALL VB_TTS_Destroy(VB_TTS_EngineHandle_t a_engine) {
 	if (a_engine) {
-		auto* tts_engine = reinterpret_cast<VoxBox::CCoreTTSEngine*>(a_engine);
+		auto* tts_engine = reinterpret_cast<VoxBox::CTTSEngineImpl*>(a_engine);
 		delete tts_engine;
 	}
 }
@@ -54,7 +54,7 @@ VB_TTS_API int VB_CALL VB_TTS_IsLoaded(VB_TTS_EngineHandle_t a_engine) {
 		return 0;
 	}
 
-	auto* tts_engine = reinterpret_cast<VoxBox::CCoreTTSEngine*>(a_engine);
+	auto* tts_engine = reinterpret_cast<VoxBox::CTTSEngineImpl*>(a_engine);
 	return tts_engine->IsInitialized() ? 1 : 0;
 }
 
@@ -70,7 +70,7 @@ VB_TTS_API VB_TTS_AudioResult_t VB_CALL VB_TTS_Synthesize(VB_TTS_EngineHandle_t 
 		return result;
 	}
 
-	auto* tts_engine = reinterpret_cast<VoxBox::CCoreTTSEngine*>(a_engine);
+	auto* tts_engine = reinterpret_cast<VoxBox::CTTSEngineImpl*>(a_engine);
 	if (!tts_engine->IsInitialized()) {
 		return result;
 	}
@@ -104,7 +104,7 @@ VB_TTS_API int16_t* VB_CALL VB_TTS_SynthesizeSimple(VB_TTS_EngineHandle_t a_engi
 	}
 	
 	*a_out_sample_count = 0;
-	auto* tts_engine = reinterpret_cast<VoxBox::CCoreTTSEngine*>(a_engine);
+	auto* tts_engine = reinterpret_cast<VoxBox::CTTSEngineImpl*>(a_engine);
 	if (!tts_engine->IsInitialized()) {
 		return nullptr;
 	}
@@ -139,7 +139,7 @@ VB_TTS_API int VB_CALL VB_TTS_SynthesizeToWAVFile(VB_TTS_EngineHandle_t a_engine
 		return 0;
 	}
 
-	auto* tts_engine = reinterpret_cast<VoxBox::CCoreTTSEngine*>(a_engine);
+	auto* tts_engine = reinterpret_cast<VoxBox::CTTSEngineImpl*>(a_engine);
 	if (!tts_engine->IsInitialized()) {
 		return 0;
 	}
@@ -169,12 +169,12 @@ VB_TTS_API void VB_CALL VB_TTS_SetSpeaker(VB_TTS_EngineHandle_t a_engine, int a_
 		return;
 	}
 
-	auto* tts_engine = reinterpret_cast<VoxBox::CCoreTTSEngine*>(a_engine);
+	auto* tts_engine = reinterpret_cast<VoxBox::CTTSEngineImpl*>(a_engine);
 	if (!tts_engine->IsInitialized()) {
 		return;
 	}
 
-	printf("[VoxBox] Setting speaker ID to: %d\n", a_speaker_id);
+	printf("[VoxBox TTS] Setting speaker ID to: %d\n", a_speaker_id);
 	tts_engine->SetSpeakerID(a_speaker_id);
 }
 
@@ -183,7 +183,7 @@ VB_TTS_API void VB_CALL VB_TTS_SetSpeed(VB_TTS_EngineHandle_t a_engine, float a_
 		return;
 	}
 
-	auto* tts_engine = reinterpret_cast<VoxBox::CCoreTTSEngine*>(a_engine);
+	auto* tts_engine = reinterpret_cast<VoxBox::CTTSEngineImpl*>(a_engine);
 	if (!tts_engine->IsInitialized()) {
 		return;
 	}
@@ -191,7 +191,7 @@ VB_TTS_API void VB_CALL VB_TTS_SetSpeed(VB_TTS_EngineHandle_t a_engine, float a_
 	VoxBox::SSynthesisConfig config = tts_engine->GetSynthesisConfig();
 	config.m_length_scale = a_length_scale;
 
-	printf("[VoxBox] Setting speech synthesis length scale to: %.2f\n", a_length_scale);
+	printf("[VoxBox TTS] Setting speech synthesis length scale to: %.2f\n", a_length_scale);
 	tts_engine->SetSynthesisConfig(config);
 }
 
@@ -235,44 +235,26 @@ VB_TTS_API const char* VB_CALL VB_TTS_GetVersion() {
 // C++ API
 #ifdef __cplusplus
 namespace VoxBox {
-
-	// TTS Audio Buffer
-
-	CVBTTSAudioBuffer::CVBTTSAudioBuffer(std::vector<int16_t> a_samples, int a_sample_rate) 
-		: m_samples(std::move(a_samples)), m_sample_rate(a_sample_rate) {
-	}
-
-	CVBTTSAudioBuffer::~CVBTTSAudioBuffer() = default;
-
-	bool CVBTTSAudioBuffer::SaveToWAVFile(const std::string& a_path) const {
-		// TODO
-		return false;
-	}
-
-
 	// TTS Engine
-
-	CVBTTSEngine::CVBTTSEngine(const STTSConfig& a_config) {
-		m_engine = std::make_unique<CCoreTTSEngine>(a_config);
+	CTTSEngine::CTTSEngine(const STTSConfig& a_config) {
+		m_engine = std::make_unique<CTTSEngineImpl>(a_config);
 	}
 
-	CVBTTSEngine::~CVBTTSEngine() = default;
+	CTTSEngine::~CTTSEngine() = default; // Defined here for visibility
 	
-	CVBTTSEngine::CVBTTSEngine(CVBTTSEngine&& a_other) noexcept 
+	CTTSEngine::CTTSEngine(CTTSEngine&& a_other) noexcept
 		: m_engine(std::move(a_other.m_engine)) {
-	
 	}
 
-	void CVBTTSEngine::operator=(CVBTTSEngine&& a_other) noexcept {
+	void CTTSEngine::operator=(CTTSEngine&& a_other) noexcept {
 		m_engine = std::move(a_other.m_engine);
 	}
 
-
-	bool CVBTTSEngine::IsLoaded() const {
+	bool CTTSEngine::IsLoaded() const {
 		return m_engine->IsInitialized();
 	}
 
-	SSynthesisResult CVBTTSEngine::Synthesize(const std::string& a_text) {
+	SSynthesisResult CTTSEngine::Synthesize(const std::string& a_text) {
 		SSynthesisResult result;
 		if (!m_engine || !m_engine->IsInitialized()) {
 			result.m_result_code = EResultCode::NotInitialized;
@@ -285,20 +267,13 @@ namespace VoxBox {
 			return result;
 		}
 
-		result.m_audio_buffer = CVBTTSAudioBuffer(std::move(audio), m_engine->GetSampleRate());
+		result.m_samples = std::move(audio);
+		result.m_sample_rate = m_engine->GetSampleRate();
 		result.m_result_code = EResultCode::Success;
 		return result;
-	}
+	}	
 
-	CVBTTSAudioBuffer CVBTTSEngine::SynthesizeSimple(const std::string& a_text) {
-		if (!m_engine || !m_engine->IsInitialized()) {
-			return CVBTTSAudioBuffer();
-		}
-		std::vector<int16_t> audio = m_engine->Synthesize(a_text.c_str());
-		return CVBTTSAudioBuffer(std::move(audio), m_engine->GetSampleRate());
-	}
-
-	bool CVBTTSEngine::SynthesizeToWAVFile(const std::string& a_text, const std::string& a_wav_path) {
+	bool CTTSEngine::SynthesizeToWAVFile(const std::string& a_text, const std::string& a_wav_path) {
 		if (!m_engine || !m_engine->IsInitialized()) {
 			return false;
 		}
@@ -313,13 +288,13 @@ namespace VoxBox {
 
 	}
 
-	void CVBTTSEngine::SetSpeakerID(int a_speaker_id) {
+	void CTTSEngine::SetSpeakerID(int a_speaker_id) {
 		if (m_engine) {
 			m_engine->SetSpeakerID(a_speaker_id);
 		}
 	}
 
-	void CVBTTSEngine::SetSpeed(float a_length_scale) {
+	void CTTSEngine::SetSpeed(float a_length_scale) {
 		if (m_engine) {
 			SSynthesisConfig config = m_engine->GetSynthesisConfig();
 			config.m_length_scale = a_length_scale;
@@ -327,7 +302,7 @@ namespace VoxBox {
 		}
 	}
 
-	void CVBTTSEngine::SetNoiseScale(float a_noise_scale) {
+	void CTTSEngine::SetNoiseScale(float a_noise_scale) {
 		if (m_engine) {
 			SSynthesisConfig config = m_engine->GetSynthesisConfig();
 			config.m_noise_scale = a_noise_scale;
@@ -335,29 +310,29 @@ namespace VoxBox {
 		}
 	}
 
-	void CVBTTSEngine::SetProgressCallback(ProgressCallbackFn a_callback_function) {
+	void CTTSEngine::SetProgressCallback(ProgressCallbackFn a_callback_function) {
 		(void)a_callback_function; // TODO: Implement core engine function
 	}
 	
-	void CVBTTSEngine::Cancel() {
+	void CTTSEngine::Cancel() {
 		// TODO
 	}
 
 	// Factory
-	std::unique_ptr<CVBTTSEngine> CVBTTSEngine::Create(const STTSConfig& a_config) {
+	std::unique_ptr<CTTSEngine> CTTSEngine::Create(const STTSConfig& a_config) {
 		try {
-			return std::make_unique<CVBTTSEngine>(a_config);
+			return std::make_unique<CTTSEngine>(a_config);
 		}
 		catch (...) {
 			return nullptr;
 		}
 	}
 	
-	const char* CVBTTSEngine::GetVersion() { 
+	const char* CTTSEngine::GetVersion() {
 		return VB_TTS_VERSION;
 	}
 	
-	STTSConfig CVBTTSEngine::GetDefaultConfig() {
+	STTSConfig CTTSEngine::GetDefaultConfig() {
 		return STTSConfig();
 	}
 

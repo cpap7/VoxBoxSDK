@@ -3,19 +3,19 @@
 
 
 namespace VoxBox {
-	//CCoreTTSEngine::CCoreTTSEngine() { }
+	//CTTSEngineImpl::CTTSEngineImpl() { }
 
-	CCoreTTSEngine::CCoreTTSEngine(const STTSConfig& a_piper_config)
-		: m_audio_buffer(std::make_unique<CCoreTTSAudioBuffer>()) {
+	CTTSEngineImpl::CTTSEngineImpl(const STTSConfig& a_piper_config)
+		: m_audio_stream_buffer(std::make_unique<CCoreTTSAudioStreamBuffer>()) {
 
 		Init(a_piper_config);
 	}
 
-	CCoreTTSEngine::~CCoreTTSEngine() {
+	CTTSEngineImpl::~CTTSEngineImpl() {
 		Shutdown();
 	}
 
-	void CCoreTTSEngine::Init(const STTSConfig& a_config) {
+	void CTTSEngineImpl::Init(const STTSConfig& a_config) {
 		if (m_is_initialized) {
 			Shutdown();
 		}
@@ -30,17 +30,17 @@ namespace VoxBox {
 		piper::initialize(*m_piper_config);
 
 		m_sample_rate = m_piper_voice->synthesisConfig.sampleRate;
-		m_audio_buffer->SetSampleRate(m_sample_rate);
+		m_audio_stream_buffer->SetSampleRate(m_sample_rate);
 		
 		m_is_initialized = true;
 	}
 
-	void CCoreTTSEngine::Reinit(const STTSConfig& a_config) {
+	void CTTSEngineImpl::Reinit(const STTSConfig& a_config) {
 		Shutdown();
 		Init(a_config);
 	}
 
-	void CCoreTTSEngine::Shutdown() {
+	void CTTSEngineImpl::Shutdown() {
 		if (!m_is_initialized) {
 			return;
 		}
@@ -53,12 +53,12 @@ namespace VoxBox {
 		delete m_piper_voice;
 		m_piper_voice = nullptr;
 
-		m_audio_buffer->Reset();
+		m_audio_stream_buffer->Reset();
 		
 		m_is_initialized = false;
 	}
 
-	std::vector<int16_t> CCoreTTSEngine::Synthesize(const char* a_text) {
+	std::vector<int16_t> CTTSEngineImpl::Synthesize(const char* a_text) {
 		assert(m_is_initialized);
 		assert(a_text != nullptr);
 
@@ -77,7 +77,7 @@ namespace VoxBox {
 		return audio_buffer;
 	}
 
-	void CCoreTTSEngine::SynthesizeToWAVFile(const char* a_text, const char* a_wav_path) {
+	void CTTSEngineImpl::SynthesizeToWAVFile(const char* a_text, const char* a_wav_path) {
 		assert(m_is_initialized);
 		assert(a_text != nullptr);
 		assert(a_wav_path != nullptr);
@@ -94,7 +94,7 @@ namespace VoxBox {
 		);
 	}
 
-	void CCoreTTSEngine::SynthesizeStreaming(std::istream& a_input, std::ostream& a_output) {
+	void CTTSEngineImpl::SynthesizeStreaming(std::istream& a_input, std::ostream& a_output) {
 		assert(m_is_initialized);
 
 		std::string line;
@@ -103,13 +103,13 @@ namespace VoxBox {
 			piper::SynthesisResult result;
 
 			std::vector<int16_t> audio_buffer;
-			m_audio_buffer->Reset();
+			m_audio_stream_buffer->Reset();
 
 			// Output thread will consume audio & write to stream
 			std::thread output_thread([this, &a_output]() {
 				std::vector<int16_t> samples;
 
-				while (m_audio_buffer->WaitAndConsume(samples)) {
+				while (m_audio_stream_buffer->WaitAndConsume(samples)) {
 					a_output.write(
 						reinterpret_cast<const char*>(samples.data()),
 						sizeof(int16_t) * samples.size()
@@ -121,17 +121,17 @@ namespace VoxBox {
 			});
 
 			auto AudioCallbackFn = [this, &audio_buffer]() {
-				m_audio_buffer->Push(audio_buffer);
+				m_audio_stream_buffer->Push(audio_buffer);
 			};
 
 			piper::textToAudio(*m_piper_config, *m_piper_voice, line, audio_buffer, result, AudioCallbackFn);
 			
-			m_audio_buffer->MarkAsFinished();
+			m_audio_stream_buffer->MarkAsFinished();
 			output_thread.join();
 		}
 	}
 
-	void CCoreTTSEngine::SetSynthesisConfig(const SSynthesisConfig& a_synthesis_config) {
+	void CTTSEngineImpl::SetSynthesisConfig(const SSynthesisConfig& a_synthesis_config) {
 		m_config.m_synthesis_config = a_synthesis_config;
 
 		if (m_is_initialized) {
@@ -139,7 +139,7 @@ namespace VoxBox {
 		}
 	}
 
-	void CCoreTTSEngine::LoadVoice() {
+	void CTTSEngineImpl::LoadVoice() {
 		bool use_cuda = (m_config.m_hardware_config.m_gpu_acceleration_type == EGPUBackendType::Cuda);
 		
 		piper::loadVoice(
@@ -179,7 +179,7 @@ namespace VoxBox {
 		}
 	}
 
-	void CCoreTTSEngine::ApplySynthesisConfig() {
+	void CTTSEngineImpl::ApplySynthesisConfig() {
 		auto& piper_synthesis_config = m_piper_voice->synthesisConfig;
 		const auto& vb_synthesis_config = m_config.m_synthesis_config;
 
@@ -211,7 +211,7 @@ namespace VoxBox {
 		}
 	}
 
-	std::filesystem::path CCoreTTSEngine::GetExecutablePath() {
+	std::filesystem::path CTTSEngineImpl::GetExecutablePath() {
 #ifdef _MSC_VER // Windows
 		wchar_t module_path[MAX_PATH] = { 0 };
 		GetModuleFileNameW(nullptr, module_path, std::size(module_path));

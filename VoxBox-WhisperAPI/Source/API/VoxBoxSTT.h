@@ -1,6 +1,4 @@
 #pragma once
-// This include is fragile but it's fine for now
-#include "../../VoxBox-Common/Source/VBCommon.h"  // TODO: adjust w/ releases and/or fix premake files
 
 #ifdef __cplusplus
     #include <string>
@@ -20,8 +18,6 @@ extern "C" {
 #endif
     // Opaque handle for C
     typedef struct VB_STT_Handle_t* VB_STT_EngineHandle_t;
-
-   
 
     // C-specific config struct (for interop)
     typedef struct {
@@ -73,64 +69,44 @@ extern "C" {
 
 namespace VoxBox {
     // Forward declaration
-    class CCoreSTTEngine;
-    //struct SSTTConfig;
-
-    struct VB_STT_API SVBTranscriptResult {
-        std::string m_text;
-        std::vector<float> m_word_probabilities;
-        std::vector<int> m_part_indices;
-        EResultCode m_result_code = EResultCode::NotInitialized;
-
-        bool Success() const { return m_result_code == EResultCode::Success; }
-        operator bool() const { return Success(); }
-    };
-
-    struct VB_STT_API SVBLanguageResult {
-        std::string m_language_code;
-        float m_confidence = 0.0f;
-        EResultCode m_result_code = EResultCode::NotInitialized;
-
-        bool Success() const { return m_result_code == EResultCode::Success; }
-        operator bool() const { return Success(); }
-    };
+    class CSTTEngineImpl;
 
     // C++ wrapper class for the core engine class
     // Serves as an API call dispatcher & has its own factory
-    class VB_STT_API CVBSTTEngine {
+    class VB_STT_API CSTTEngine {
     private:
-        std::unique_ptr<CCoreSTTEngine> m_engine = nullptr; // Instance
+        std::unique_ptr<CSTTEngineImpl> m_engine = nullptr; // Instance
 
     public:
         // Lifecycle
-        CVBSTTEngine(const SSTTConfig& config);
-        ~CVBSTTEngine();
+        CSTTEngine(const SSTTConfig& config);
+        ~CSTTEngine();
 
         // Don't need copies
-        CVBSTTEngine(const CVBSTTEngine&) = delete;
-        void operator=(const CVBSTTEngine&) = delete;
+        CSTTEngine(const CSTTEngine&) = delete;
+        void operator=(const CSTTEngine&) = delete;
         
-        CVBSTTEngine(CVBSTTEngine&& a_other) noexcept;
-        void operator=(CVBSTTEngine&& a_other) noexcept;
+        CSTTEngine(CSTTEngine&& a_other) noexcept;
+        void operator=(CSTTEngine&& a_other) noexcept;
 
         // Status
         bool IsLoaded() const;
         explicit operator bool() const { return IsLoaded(); }
 
         // Transcription
-        SVBTranscriptResult Transcribe(const std::vector<float>& a_audio_data);
-        SVBTranscriptResult Transcribe(const float* a_audio_data, int a_sample_count);
+        STranscriptResult Transcribe(const std::vector<float>& a_audio_data);
+        STranscriptResult Transcribe(const float* a_audio_data, int a_sample_count);
         std::string TranscribeSimple(const float* a_audio_data, int a_sample_count);
 
         // Language detection
-        SVBLanguageResult DetectLanguage(const float* a_audio_data, int a_sample_count);
+        SLanguageResult DetectLanguage(const float* a_audio_data, int a_sample_count);
 
         // Control
         void SetProgressCallback(ProgressCallbackFn a_callback_function);
         void Cancel();
 
         // Factory
-        static std::unique_ptr<CVBSTTEngine> Create(const SSTTConfig& a_config);
+        static std::unique_ptr<CSTTEngine> Create(const SSTTConfig& a_config);
         
         // Misc
         static SSTTConfig GetDefaultConfig();

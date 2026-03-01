@@ -1,7 +1,7 @@
 #pragma once
 
 #include "TTSConfig.h"
-#include "TTSAudioBuffer.h"
+#include "TTSAudioStreamBuffer.h"
 #include <optional>
 
 #include <piper.hpp>
@@ -9,7 +9,7 @@
 namespace VoxBox {
 	// TTS Engine
 
-	class CCoreTTSEngine {
+	class CTTSEngineImpl {
 	private:
 		// VoxBox-defined config struct for piper
 		STTSConfig m_config; // Cached for reinitialization
@@ -23,19 +23,19 @@ namespace VoxBox {
 		piper::Voice* m_piper_voice = nullptr;
 
 		// Audio output
-		std::unique_ptr<CCoreTTSAudioBuffer> m_audio_buffer = nullptr;
+		std::unique_ptr<CCoreTTSAudioStreamBuffer> m_audio_stream_buffer = nullptr;
 		int m_sample_rate = 22050;
 		
 		// Flags
 		bool m_is_initialized = false; // Tracks state
 
 	public:
-		//CTTSEngine() = delete;
-		//CTTSEngine(const CTTSEngine&) = delete;
-		//void operator=(const CTTSEngine&) = delete;
+		//CTTSEngineImpl() = delete;
+		//CTTSEngineImpl(const CTTSEngineImpl&) = delete;
+		//void operator=(const CTTSEngineImpl&) = delete;
 
-		explicit CCoreTTSEngine(const STTSConfig& a_piper_config);
-		~CCoreTTSEngine();
+		explicit CTTSEngineImpl(const STTSConfig& a_piper_config);
+		~CTTSEngineImpl();
 		
 		// Lifecycle
 		void Init(const STTSConfig& a_config);
@@ -50,7 +50,7 @@ namespace VoxBox {
 		// Getters
 		inline bool IsInitialized() const								{ return m_is_initialized;				}
 		inline int GetSampleRate() const								{ return m_sample_rate;					}
-		inline CCoreTTSAudioBuffer* GetAudioBuffer() const				{ return m_audio_buffer.get();			}
+		inline CCoreTTSAudioStreamBuffer* GetAudioStreamBuffer() const  { return m_audio_stream_buffer.get();	}
 		inline const STTSConfig& GetConfig() const						{ return m_config;						}
 		inline const SSynthesisConfig& GetSynthesisConfig() const		{ return m_config.m_synthesis_config;	}
 		//inline SSynthesisConfig GetDefaultSynthesisConfig()			{ return SSynthesisConfig();			}
@@ -58,6 +58,8 @@ namespace VoxBox {
 		// Setters (runtime adjustment)
 		void SetSynthesisConfig(const SSynthesisConfig& a_synthesis_config);
 		inline void SetSpeakerID(piper::SpeakerId a_id) { m_speaker_id = a_id; } // piper::SpeakerId passed by value since it's technically int64_t
+
+		
 
 	private:
 		// Internal helpers

@@ -39,7 +39,7 @@ VB_STT_API VB_STT_EngineHandle_t VB_CALL VB_STT_Create(const VB_STT_Config_t* a_
 
     try {
         VoxBox::SSTTConfig config = ConvertSSTConfig(a_config);
-        auto* stt_engine = new VoxBox::CCoreSTTEngine(config);
+        auto* stt_engine = new VoxBox::CSTTEngineImpl(config);
         return reinterpret_cast<VB_STT_EngineHandle_t>(stt_engine);
     }
     catch (...) {
@@ -51,7 +51,7 @@ VB_STT_API VB_STT_EngineHandle_t VB_CALL VB_STT_Create(const VB_STT_Config_t* a_
 
 VB_STT_API void VB_CALL VB_STT_Destroy(VB_STT_EngineHandle_t a_engine) {
     if (a_engine) {
-        auto* stt_engine = reinterpret_cast<VoxBox::CCoreSTTEngine*>(a_engine);
+        auto* stt_engine = reinterpret_cast<VoxBox::CSTTEngineImpl*>(a_engine);
         delete stt_engine;
     }
 }
@@ -61,7 +61,7 @@ VB_STT_API int VB_CALL VB_STT_IsLoaded(VB_STT_EngineHandle_t a_engine) {
         return 0;
     }
 
-    auto* stt_engine = reinterpret_cast<VoxBox::CCoreSTTEngine*>(a_engine);
+    auto* stt_engine = reinterpret_cast<VoxBox::CSTTEngineImpl*>(a_engine);
     return stt_engine != nullptr ? 1 : 0; // Check context initialization first 
 }
 
@@ -77,10 +77,10 @@ VB_STT_API VB_STT_Result_t VB_CALL VB_STT_Transcribe(VB_STT_EngineHandle_t a_eng
         return c_transcript_result;
     }
 
-    auto* stt_engine = reinterpret_cast<VoxBox::CCoreSTTEngine*>(a_engine);
+    auto* stt_engine = reinterpret_cast<VoxBox::CSTTEngineImpl*>(a_engine);
     try {
         VoxBox::STranscriptResult transcript_result = stt_engine->Transcribe(a_audio, a_sample_count, true);
-        if (!transcript_result.m_success) {
+        if (!transcript_result.Success()) {
             return c_transcript_result;
         }
 
@@ -115,23 +115,25 @@ VB_STT_API const char* VB_CALL VB_STT_TranscribeSimple(VB_STT_EngineHandle_t a_e
         return nullptr;
     }
 
-    auto* stt_engine = reinterpret_cast<VoxBox::CCoreSTTEngine*>(a_engine);
-    try {
-        VoxBox::STranscriptResult transcript_result = stt_engine->Transcribe(a_audio, a_sample_count, true);
-        if (!transcript_result.m_success || transcript_result.m_text.empty()) {
-            return nullptr;
-        }
-        
-        char* transcript_text = static_cast<char*>(malloc(transcript_result.m_text.size() + 1));
+    auto* stt_engine = reinterpret_cast<VoxBox::CSTTEngineImpl*>(a_engine);
+
+    VoxBox::STranscriptResult transcript_result = stt_engine->Transcribe(a_audio, a_sample_count, true);
+    if (!transcript_result.Success() || transcript_result.m_text.empty()) {
+        return nullptr;
+    }
+    char* transcript_text = static_cast<char*>(malloc(transcript_result.m_text.size() + 1));
+
+    try {    
         if (transcript_text) {
             std::memcpy(transcript_text, transcript_result.m_text.c_str(), transcript_result.m_text.size() + 1);
         }
-
-        return transcript_text;
     }
     catch (...) {
         return nullptr;
     }
+
+    return transcript_text;
+
 }
 
 VB_STT_API const char* VB_CALL VB_STT_DetectLanguage(VB_STT_EngineHandle_t a_engine, const float* a_audio, int a_sample_count) {
@@ -139,24 +141,25 @@ VB_STT_API const char* VB_CALL VB_STT_DetectLanguage(VB_STT_EngineHandle_t a_eng
         return nullptr;
     }
 
-    auto* stt_engine = reinterpret_cast<VoxBox::CCoreSTTEngine*>(a_engine);
+    auto* stt_engine = reinterpret_cast<VoxBox::CSTTEngineImpl*>(a_engine);
     
     VoxBox::SLanguageResult language_result = stt_engine->DetectLanguage(a_audio, a_sample_count);
     if (language_result.m_language_code.empty()) {
         return nullptr;
     }
 
+    char* language_string = static_cast<char*>(malloc(language_result.m_language_code.size() + 1));
+
     try {
-        char* language_string = static_cast<char*>(malloc(language_result.m_language_code.size() + 1));
         if (language_string) {
             std::memcpy(language_string, language_result.m_language_code.c_str(), language_result.m_language_code.size() + 1);
         }
-
-        return language_string;
     }
     catch (...) {
         return nullptr;
     }
+
+    return language_string;
 }
 
 VB_STT_API void VB_CALL VB_STT_SetProgressCallback(VB_STT_EngineHandle_t a_engine, void (*a_callback)(int a_progress)) {
@@ -164,7 +167,7 @@ VB_STT_API void VB_CALL VB_STT_SetProgressCallback(VB_STT_EngineHandle_t a_engin
         return;
     }
 
-    auto* stt_engine = reinterpret_cast<VoxBox::CCoreSTTEngine*>(a_engine);
+    auto* stt_engine = reinterpret_cast<VoxBox::CSTTEngineImpl*>(a_engine);
     stt_engine->SetProgressCallback(a_callback);
 }
 
@@ -173,7 +176,7 @@ VB_STT_API void VB_CALL VB_STT_Cancel(VB_STT_EngineHandle_t a_engine) {
         return;
     }
 
-    auto* stt_engine = reinterpret_cast<VoxBox::CCoreSTTEngine*>(a_engine);
+    auto* stt_engine = reinterpret_cast<VoxBox::CSTTEngineImpl*>(a_engine);
     stt_engine->Cancel();
 }
 
@@ -225,30 +228,30 @@ VB_STT_API const char* VB_CALL VB_STT_GetVersion() {
 // C++ API
 #ifdef __cplusplus
 namespace VoxBox {
-    CVBSTTEngine::CVBSTTEngine(const SSTTConfig& a_config) {
-        m_engine = std::make_unique<CCoreSTTEngine>(a_config);
+    CSTTEngine::CSTTEngine(const SSTTConfig& a_config) {
+        m_engine = std::make_unique<CSTTEngineImpl>(a_config);
 	}
 	
-    CVBSTTEngine::~CVBSTTEngine() = default; // We define this here for visibility
+    CSTTEngine::~CSTTEngine() = default; // We define this here for visibility
 
-    CVBSTTEngine::CVBSTTEngine(CVBSTTEngine&& a_other) noexcept 
+    CSTTEngine::CSTTEngine(CSTTEngine&& a_other) noexcept
         : m_engine(std::move(a_other.m_engine)){
 	}
 
-	void CVBSTTEngine::operator=(CVBSTTEngine&& a_other) noexcept {
+	void CSTTEngine::operator=(CSTTEngine&& a_other) noexcept {
         m_engine = std::move(a_other.m_engine);
 	}
 
-    bool CVBSTTEngine::IsLoaded() const {
+    bool CSTTEngine::IsLoaded() const {
         return m_engine->IsLoaded();
     }
 
-    SVBTranscriptResult CVBSTTEngine::Transcribe(const std::vector<float>& a_audio_data) {
+    STranscriptResult CSTTEngine::Transcribe(const std::vector<float>& a_audio_data) {
         return Transcribe(a_audio_data.data(), static_cast<int>(a_audio_data.size()));
     }
 
-    SVBTranscriptResult CVBSTTEngine::Transcribe(const float* a_audio_data, int a_sample_count) {
-        SVBTranscriptResult result;
+    STranscriptResult CSTTEngine::Transcribe(const float* a_audio_data, int a_sample_count) {
+        STranscriptResult result;
         if (!m_engine) {
             result.m_result_code = EResultCode::NotInitialized;
             return result;
@@ -260,40 +263,32 @@ namespace VoxBox {
         }
 
         try {
-            STranscriptResult core_result = m_engine->Transcribe(a_audio_data, a_sample_count, true);
-            if (core_result.m_success) {
-                result.m_text               = std::move(core_result.m_text);
-                result.m_word_probabilities = std::move(core_result.m_word_probabilities);
-                result.m_part_indices       = std::move(core_result.m_part_indices);
-                result.m_result_code        = EResultCode::Success;
-            }
-            else {
-                result.m_result_code        = EResultCode::ProcessingFailed;
-            }
+            result = m_engine->Transcribe(a_audio_data, a_sample_count, true);
+            result.m_result_code = (result.m_text.empty()) ? EResultCode::ProcessingFailed : EResultCode::Success;
+            return result;
         }
         catch(...) {
             result.m_result_code = EResultCode::InternalError;
+            return result;
         }
-        
-        return result;
     }
 
-    std::string CVBSTTEngine::TranscribeSimple(const float* a_audio_data, int a_sample_count) {
+    std::string CSTTEngine::TranscribeSimple(const float* a_audio_data, int a_sample_count) {
         if (!m_engine || !a_audio_data || a_sample_count <= 0) {
             return "";
         }
 
         try {
-            STranscriptResult core_result = m_engine->Transcribe(a_audio_data, a_sample_count, false);
-            return core_result.m_success ? core_result.m_text : "";
+            STranscriptResult result = m_engine->Transcribe(a_audio_data, a_sample_count, false);
+            return result.Success() ? result.m_text : "";
         }
         catch (...) {
             return "";
         }
     }
 
-    SVBLanguageResult CVBSTTEngine::DetectLanguage(const float* a_audio_data, int a_sample_count) {
-        SVBLanguageResult result;
+    SLanguageResult CSTTEngine::DetectLanguage(const float* a_audio_data, int a_sample_count) {
+        SLanguageResult result;
         if (!m_engine) {
             result.m_result_code = EResultCode::NotInitialized;
             return result;
@@ -305,25 +300,19 @@ namespace VoxBox {
         }
 
         try {
-            SLanguageResult core_result = m_engine->DetectLanguage(a_audio_data, a_sample_count);
-            if (!core_result.m_language_code.empty()) {
-                result.m_language_code = std::move(core_result.m_language_code);
-                result.m_confidence    = core_result.m_confidence;
-                result.m_result_code   = EResultCode::Success;
-            }
-            else {
-                result.m_result_code   = EResultCode::ProcessingFailed;
+            result = m_engine->DetectLanguage(a_audio_data, a_sample_count);
+            if (result.m_language_code.empty()) {
+                result.m_result_code = EResultCode::ProcessingFailed;
             }
         }
         catch (...) {
             result.m_result_code = EResultCode::InternalError;
         }
 
-
         return result;
     }
 
-    void CVBSTTEngine::SetProgressCallback(ProgressCallbackFn a_callback) {
+    void CSTTEngine::SetProgressCallback(ProgressCallbackFn a_callback) {
         if (!m_engine) {
             return;
         }
@@ -331,7 +320,7 @@ namespace VoxBox {
         m_engine->SetProgressCallback(a_callback);
     }
 
-    void CVBSTTEngine::Cancel() {
+    void CSTTEngine::Cancel() {
         if (!m_engine) {
             return;
         }
@@ -339,20 +328,20 @@ namespace VoxBox {
         m_engine->Cancel();
     }
 
-    std::unique_ptr<CVBSTTEngine> CVBSTTEngine::Create(const SSTTConfig& a_config) {
+    std::unique_ptr<CSTTEngine> CSTTEngine::Create(const SSTTConfig& a_config) {
         try {
-            return std::make_unique<CVBSTTEngine>(a_config);
+            return std::make_unique<CSTTEngine>(a_config);
         }
         catch (...) {
             return nullptr;
         }
     }
 
-    SSTTConfig CVBSTTEngine::GetDefaultConfig() {
+    SSTTConfig CSTTEngine::GetDefaultConfig() {
         return SSTTConfig();
     }
 
-    std::string CVBSTTEngine::GetVersion() {
+    std::string CSTTEngine::GetVersion() {
         return VB_STT_VERSION;
     }
 }

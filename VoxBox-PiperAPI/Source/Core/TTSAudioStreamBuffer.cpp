@@ -1,8 +1,9 @@
 #include "vbppch.h"
-#include "TTSAudioBuffer.h"
+#include "TTSAudioStreamBuffer.h"
 
 namespace VoxBox {
-	void CCoreTTSAudioBuffer::Push(const std::vector<int16_t>& a_samples) {
+
+	void CCoreTTSAudioStreamBuffer::Push(const std::vector<int16_t>& a_samples) {
 		std::lock_guard<std::mutex> lock(m_mutex);
 
 		m_shared_buffer.insert(m_shared_buffer.end(), a_samples.begin(), a_samples.end());
@@ -11,7 +12,7 @@ namespace VoxBox {
 		m_condition.notify_one();
 	}
 
-	void CCoreTTSAudioBuffer::MarkAsFinished() {
+	void CCoreTTSAudioStreamBuffer::MarkAsFinished() {
 		std::lock_guard<std::mutex> lock(m_mutex);
 
 		m_audio_is_finished = true;
@@ -20,14 +21,14 @@ namespace VoxBox {
 		m_condition.notify_one();
 	}
 
-	
-	bool CCoreTTSAudioBuffer::WaitAndConsume(std::vector<int16_t>& a_out_samples) {
+
+	bool CCoreTTSAudioStreamBuffer::WaitAndConsume(std::vector<int16_t>& a_out_samples) {
 		std::unique_lock<std::mutex> lock(m_mutex);
 
-		m_condition.wait(lock, [this] { 
+		m_condition.wait(lock, [this] {
 			return m_audio_is_ready;
 		});
-		
+
 		if (m_shared_buffer.empty() && m_audio_is_finished) {
 			return false; // No more data
 		}
@@ -43,18 +44,16 @@ namespace VoxBox {
 		return true;
 	}
 
-	void CCoreTTSAudioBuffer::Reset() {
+	void CCoreTTSAudioStreamBuffer::Reset() {
 		std::lock_guard<std::mutex> lock(m_mutex);
 
 		m_shared_buffer.clear();
 		//m_internal_buffer.clear();
+
 		m_audio_is_ready = false;
 		m_audio_is_finished = false;
 
-		//m_condition.notify_one();
 	}
+
 	
-	size_t CCoreTTSAudioBuffer::GetSharedBufferSize() const {
-		return m_shared_buffer.size();
-	}
 }

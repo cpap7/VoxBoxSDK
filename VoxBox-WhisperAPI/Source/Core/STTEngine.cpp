@@ -1,5 +1,6 @@
 #include "vbwpch.h"
 #include "STTEngine.h"
+#include "STTResults.h"
 
 #include <whisper.h>
 
@@ -45,32 +46,38 @@ namespace VoxBox {
 	}
 
 
-	CCoreSTTEngine::CCoreSTTEngine(const SSTTConfig& a_config) {
-		Init(a_config);
+	CSTTEngineImpl::CSTTEngineImpl(const SSTTConfig& a_config)
+		: m_config(a_config) {
+		Init();
 	}
 
-	CCoreSTTEngine::~CCoreSTTEngine() {
+	CSTTEngineImpl::~CSTTEngineImpl() {
 		Shutdown();
 	}
 
-	void CCoreSTTEngine::Init(const SSTTConfig& a_config) {
-		m_config = a_config;
+	void CSTTEngineImpl::Init() {
 
 		whisper_context_params context_params = whisper_context_default_params();
-		context_params.use_gpu = a_config.m_hardware_config.m_use_gpu;
-		context_params.flash_attn = a_config.m_feature_config.m_flash_attn;
+		context_params.use_gpu = m_config.m_hardware_config.m_use_gpu;
+		context_params.flash_attn = m_config.m_feature_config.m_flash_attn;
 
-		m_context = whisper_init_from_file_with_params(a_config.m_model_config.m_model_path.c_str(), context_params);
+		m_context = whisper_init_from_file_with_params(m_config.m_model_config.m_model_path.c_str(), context_params);
+
+		if (!m_context && m_config.m_hardware_config.m_use_gpu) {
+			// Fall back to CPU if GPU init fails
+			context_params.use_gpu = false;
+			m_context = whisper_init_from_file_with_params(m_config.m_model_config.m_model_path.c_str(), context_params);
+		}
 	}
 
-	void CCoreSTTEngine::Shutdown() {
+	void CSTTEngineImpl::Shutdown() {
 		if (m_context) {
 			whisper_free(m_context);
 			m_context = nullptr;
 		}
 	}
 
-	STranscriptResult CCoreSTTEngine::Transcribe(const float* a_audio_data, int a_audio_length, bool a_get_word_probabilities) {
+	STranscriptResult CSTTEngineImpl::Transcribe(const float* a_audio_data, int a_audio_length, bool a_get_word_probabilities) {
 		STranscriptResult result;
 
 		if (!m_context) {
@@ -91,13 +98,13 @@ namespace VoxBox {
 			return result;
 		}
 
-		result.m_text		= ExtractTextTokens(result.m_word_probabilities, a_get_word_probabilities);
-		result.m_success	= true;
+		result.m_text			= ExtractTextTokens(result.m_word_probabilities, a_get_word_probabilities);
+		result.m_result_code	= EResultCode::Success;
 
 		return result;
 	}
 
-	STranscriptResult CCoreSTTEngine::TranscribeParts(const float* a_audio_data, const std::vector<int>& a_part_starts,
+	STranscriptResult CSTTEngineImpl::TranscribeParts(const float* a_audio_data, const std::vector<int>& a_part_starts,
 		const std::vector<int>& a_part_ends, bool a_get_word_probabilities) {
 
 		STranscriptResult result;
@@ -113,7 +120,7 @@ namespace VoxBox {
 		m_progress_tracker.SetPartsCount(parts_count);
 
 		std::string full_text = "";
-		static constexpr int min_audio_samples = 16000 + 384; // ~1 sec minimum @ 16kHz
+		static constexpr int min_audio_samples = 16000; // ~1 sec minimum @ 16kHz
 
 		// Configure whisper parameters
 		whisper_full_params params = whisper_full_default_params(WHISPER_SAMPLING_GREEDY);
@@ -162,13 +169,13 @@ namespace VoxBox {
 			}
 		}
 
-		result.m_text		= full_text;
-		result.m_success	= !m_progress_tracker.IsAborted();
+		result.m_text			= full_text;
+		result.m_result_code	= (!m_progress_tracker.IsAborted()) ? EResultCode::Success : EResultCode::Cancelled;
 
 		return result;
 	}
 
-	SLanguageResult CCoreSTTEngine::DetectLanguage(const float* a_audio_data, int a_audio_length) {
+	SLanguageResult CSTTEngineImpl::DetectLanguage(const float* a_audio_data, int a_audio_length) {
 		SLanguageResult result;
 		if (!m_context || !a_audio_data || a_audio_length <= 0) {
 			return result;
@@ -202,14 +209,15 @@ namespace VoxBox {
 		);
 		
 		if (detected_lang_id >= 0) {
-			result.m_language_code = whisper_lang_str(detected_lang_id);
-			result.m_confidence = lang_probs[detected_lang_id];
+			result.m_language_code	= whisper_lang_str(detected_lang_id);
+			result.m_confidence		= lang_probs[detected_lang_id];
+			result.m_result_code	= EResultCode::Success;
 		}
 
 		return result;
 	}
 
-	std::string CCoreSTTEngine::ExtractTextTokens(std::vector<float>& a_probabilities, bool a_get_word_probabilities) {
+	std::string CSTTEngineImpl::ExtractTextTokens(std::vector<float>& a_probabilities, bool a_get_word_probabilities) {
 		if (!m_context) { 
 			return ""; 
 		}
@@ -220,8 +228,11 @@ namespace VoxBox {
 
 		for (int segment = 0; segment < segment_count; ++segment) {
 			if (!a_get_word_probabilities) {
-				// Just get segment text
-				result += whisper_full_get_segment_text(m_context, segment);
+				// Just get segment text & concatenate if it exists
+				const char* segment_text = whisper_full_get_segment_text(m_context, segment);
+				if (segment_text) {
+					result += segment_text;
+				}
 				continue;
 			}
 
@@ -252,13 +263,13 @@ namespace VoxBox {
 		return result;
 	}
 
-	void CCoreSTTEngine::UpdateWhisperContext(whisper_full_params& a_params, int a_part_index) {
+	void CSTTEngineImpl::UpdateWhisperContext(whisper_full_params& a_params, int a_part_index) {
 		// Keep context between parts = false
 		// Reset on first part only = true
 		a_params.no_context = (a_part_index == 0) ? true : false; 
 	}
 
-	void CCoreSTTEngine::UpdateWhisperParams(whisper_full_params& a_params, int a_part_index) {
+	void CSTTEngineImpl::UpdateWhisperParams(whisper_full_params& a_params, int a_part_index) {
 		//const auto& dtw_config				= m_config.m_dtw_config;
 		//const auto& system_config			= m_config.m_system_config;
 		//const auto& open_vino_config		= m_config.m_open_vino_config;
@@ -281,7 +292,7 @@ namespace VoxBox {
 		a_params.no_context				= (a_part_index == 0); // Reset on first part only
 		a_params.suppress_blank			= feature_config.m_suppress_blank;
 		a_params.suppress_nst			= feature_config.m_suppress_nst;
-		a_params.suppress_regex			= feature_config.m_suppress_regex.c_str();
+		a_params.suppress_regex			= feature_config.m_suppress_regex.empty() ? nullptr : feature_config.m_suppress_regex.c_str();
 		a_params.detect_language		= feature_config.m_detect_language;
 		a_params.tdrz_enable			= feature_config.m_tinydiarize_enable;
 		a_params.debug_mode				= feature_config.m_debug_mode;

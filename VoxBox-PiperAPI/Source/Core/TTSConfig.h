@@ -36,7 +36,7 @@ namespace VoxBox {
         Default = None
     };
 
-    struct SHardwareConfig {
+    struct STTSHardwareConfig {
         EGPUBackendType m_gpu_acceleration_type = EGPUBackendType::Default;
     };
 
@@ -48,6 +48,6 @@ namespace VoxBox {
     struct VB_TTS_API STTSConfig {
         SVoiceModelConfig   m_voice_config;
         SSynthesisConfig    m_synthesis_config;
-        SHardwareConfig     m_hardware_config;
+        STTSHardwareConfig  m_hardware_config;
     };
 }

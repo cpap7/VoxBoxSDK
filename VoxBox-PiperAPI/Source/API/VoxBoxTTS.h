@@ -1,6 +1,6 @@
 #pragma once
-// This include is fragile but it's fine for now
-#include "../../VoxBox-Common/Source/VBCommon.h"  // TODO: adjust w/ releases and/or fix premake files
+// TODO: Change this
+#include "../../VoxBox-Common/Source/VBCommon.h"
 
 #ifdef __cplusplus
     #include <cstdint>
@@ -11,7 +11,9 @@
     #include <optional>
     #include <filesystem>
     #include <atomic>
+    
     #include "../Core/TTSConfig.h"
+    #include "../Core/TTSResults.h"
 #else
     #include <stdint.h>
    //#include <stddef.h>
@@ -86,61 +88,25 @@ extern "C" {
 #ifdef __cplusplus
 namespace VoxBox {
     // Forward declarations
-    class CCoreTTSEngine;
-    //struct STTSConfig;
-
-    // Wrapper for audio buffer
-    // Used primarily by the engine wrapper class 
-    // Used to store values produced by the core audio buffer class
-    class VB_TTS_API CVBTTSAudioBuffer {
-        // TODO: Consolidate this class better w/ the core class
-        // Or remove it entirely
-    private:
-        std::vector<int16_t> m_samples;
-        int m_sample_rate = 22050; 
-
-    public:
-        CVBTTSAudioBuffer() = default;
-        CVBTTSAudioBuffer(std::vector<int16_t> a_samples, int a_sample_rate);
-        ~CVBTTSAudioBuffer();
-
-        // Accessors
-        inline const int16_t* Data() const { return m_samples.data();                   }
-        inline int SampleCount() const     { return static_cast<int>(m_samples.size()); }
-        inline int SampleRate() const      { return m_sample_rate;                      }
-        inline bool IsEmpty() const        { return m_samples.empty();                  }
-
-        // Export
-        bool SaveToWAVFile(const std::string& path) const;
-        inline std::vector<int16_t> Release() { return std::move(m_samples);            }
-    };
-
-    // Result type
-    struct VB_TTS_API SSynthesisResult {
-        CVBTTSAudioBuffer m_audio_buffer;
-        EResultCode m_result_code = EResultCode::NotInitialized;
-
-        inline bool Success() const     { return m_result_code == EResultCode::Success; }
-        inline operator bool() const    { return Success();                             }
-    };
+    class CTTSEngineImpl;
 
     // TTS engine API wrapper
     // Serves to dispatch calls to the core engine class
     // and has TTS engine class factory functions
-    class VB_TTS_API CVBTTSEngine {
+    class VB_TTS_API CTTSEngine {
     private:
-        std::unique_ptr<CCoreTTSEngine> m_engine = nullptr;
+        std::unique_ptr<CTTSEngineImpl> m_engine = nullptr;
 
     public:
-        CVBTTSEngine(const STTSConfig& config);
-        ~CVBTTSEngine();
+        CTTSEngine(const STTSConfig& config);
+        ~CTTSEngine();
         
         // Don't need copies
-        CVBTTSEngine(const CVBTTSEngine&) = delete;
-        void operator=(const CVBTTSEngine&) = delete;
+        CTTSEngine(const CTTSEngine&) = delete;
+        void operator=(const CTTSEngine&) = delete;
         
-        CVBTTSEngine(CVBTTSEngine&& a_other) noexcept;
-        void operator=(CVBTTSEngine&& a_other) noexcept;
+        CTTSEngine(CTTSEngine&& a_other) noexcept;
+        void operator=(CTTSEngine&& a_other) noexcept;
 
         // Status
         bool IsLoaded() const;
@@ -148,7 +114,6 @@ namespace VoxBox {
 
         // Synthesis
         SSynthesisResult Synthesize(const std::string& a_text);
-        CVBTTSAudioBuffer SynthesizeSimple(const std::string& a_text);
         bool SynthesizeToWAVFile(const std::string& a_text, const std::string& a_wav_path);
 
         // Voice settings
@@ -161,7 +126,7 @@ namespace VoxBox {
         void Cancel();
 
         // Factory
-        static std::unique_ptr<CVBTTSEngine> Create(const STTSConfig& a_config);
+        static std::unique_ptr<CTTSEngine> Create(const STTSConfig& a_config);
 
         // Misc
         static const char* GetVersion();

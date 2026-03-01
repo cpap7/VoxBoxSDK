@@ -22,7 +22,7 @@ namespace VoxBox {
 
 	// DTW (Dynamic Time Warping) for token timestamps
 	struct SDTWConfig {
-		std::string m_model_preset;        // e.g., "base.en", "large.v3"
+		std::string m_model_preset = "";        // e.g., "base.en", "large.v3"
 		bool m_enabled = false;
 	};
 
@@ -39,8 +39,8 @@ namespace VoxBox {
 
 	/* Hardware configs */
 
-	struct SHardwareConfig {
-		int m_thread_count				= 0;	// Default = 0 --> whisper.cpp auto detects # of threads to use
+	struct SSTTHardwareConfig {
+		int m_thread_count				= 4;	// Default = 0 --> whisper.cpp auto detects # of threads to use
 		bool m_use_gpu					= true;	
 		//bool m_flash_attention		= false;
 	};
@@ -70,7 +70,7 @@ namespace VoxBox {
 
     // Advanced feature flags
     struct SFeatureConfig {
-        std::string m_suppress_regex;      // Regex for token suppression
+		std::string m_suppress_regex;      // Regex for token suppression
         std::string m_tdrz_speaker_turn = " [SPEAKER_TURN]";
 
         bool m_diarize				= false;    // Stereo speaker diarization
@@ -154,7 +154,7 @@ namespace VoxBox {
         SAudioProcessingConfig  m_audio_processing_config;
         SThresholdConfig        m_threshold_config;
         STemperatureConfig      m_temperature_config;
-		SHardwareConfig         m_hardware_config;
+		SSTTHardwareConfig      m_hardware_config;
         SOutputConfig           m_output_config;
 	};
 }
