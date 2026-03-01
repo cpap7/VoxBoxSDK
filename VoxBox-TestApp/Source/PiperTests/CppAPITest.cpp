@@ -13,12 +13,12 @@ int main() {
 	const char* model_onnx_json_path = "Assets/Models/en_US-john-medium.onnx.json";
 
 	// Setup config
-	auto config = VoxBox::CVBTTSEngine::GetDefaultConfig();
+	auto config = VoxBox::CTTSEngine::GetDefaultConfig();
 	config.m_voice_config.m_model_onnx_path = model_onnx_path;
 	config.m_voice_config.m_model_onnx_json_path = model_onnx_json_path;
 
 	// Setup engine & validate
-	auto engine = VoxBox::CVBTTSEngine::Create(config);
+	auto engine = VoxBox::CTTSEngine::Create(config);
 	if (!engine) {
 		std::cerr << "[VoxBox] Failed to create the TTS engine!\n";
 		return 1;
@@ -38,8 +38,8 @@ int main() {
 		VoxBox::SSynthesisResult result = engine->Synthesize(test_phrase);
 		if (result.Success()) {
 			std::cout << "[VoxBox] Audio synthesis succeeded: " 
-				<< result.m_audio_buffer.SampleCount() << " samples @ " 
-				<< result.m_audio_buffer.SampleRate() << " Hz\n";
+				<< result.SampleCount() << " samples @ " 
+				<< result.SampleRate() << " Hz\n";
 		}
 		else {
 			std::cerr << "[VoxBox] Audio synthesis failed!\n";
@@ -48,9 +48,9 @@ int main() {
 	}
 
 	{ // Test simple synthesis
-		VoxBox::CVBTTSAudioBuffer buffer = engine->SynthesizeSimple(test_phrase);
-		if (!buffer.IsEmpty()) {
-			std::cout << "[VoxBox] Simple audio synthesis succeeded: " << buffer.SampleCount() << " samples\n";
+		VoxBox::SSynthesisResult result = engine->Synthesize(test_phrase);
+		if (!result.IsEmpty()) {
+			std::cout << "[VoxBox] Simple audio synthesis succeeded: " << result.SampleCount() << " samples\n";
 		}
 		else {
 			std::cerr << "[VoxBox] Simple audio synthesis returned an empty buffer!\n";
