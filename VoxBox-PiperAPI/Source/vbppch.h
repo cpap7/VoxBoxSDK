@@ -5,6 +5,8 @@
 //  Platform Detection 
 #ifdef _WIN32
 	#define VB_PLATFORM_WINDOWS
+	#define WIN32_LEAN_AND_MEAN
+	#define NOMINMAX
 #elif defined(__APPLE__)
 	#define VB_PLATFORM_MACOS
 #elif defined(__linux__)
@@ -13,10 +15,8 @@
 
 // Platform-Specific Headers
 #ifdef VB_PLATFORM_WINDOWS
-	#ifndef WIN32_LEAN_AND_MEAN
-		#define WIN32_LEAN_AND_MEAN
-	#endif
 	#include <windows.h>
+
 #elif defined(VB_PLATFORM_MACOS)
 	#include <mach-o/dyld.h>
 	#include <climits>  // For PATH_MAX
@@ -49,6 +49,7 @@
 #include <thread>
 #include <vector>
 
+#include "../../VoxBox-Common/Source/VBCommon.h"  // TODO: adjust w/ releases and/or fix premake files
 
 // DLL Macros
 #ifdef VB_PLATFORM_WINDOWS
