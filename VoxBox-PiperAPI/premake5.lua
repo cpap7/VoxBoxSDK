@@ -62,8 +62,14 @@ project "VoxBox-PiperAPI"
     filter "configurations:Debug"
         symbols "On"
         defines { "_DEBUG" }
+        links {
+            "msvcprtd"    
+        }
 
     filter "configurations:Release"
         optimize "On"
         defines { "NDEBUG" }
         symbols "Off"
+        links {
+            "msvcprt"
+        }
