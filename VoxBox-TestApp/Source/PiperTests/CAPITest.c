@@ -33,7 +33,7 @@ int main() {
 	printf("[VoxBox] TTS engine created and loaded successfully!\n");
 
 	// Strings for testing
-	const char* test_phrase = "Hello, I am an AI model.";
+	const char* test_phrase = "Hello. I am an AI model and I am going to steal your job";
 	const char* wav_file_path = "output_c.wav";
 
 	{ // Synthesize to audio result struct

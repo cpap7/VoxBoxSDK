@@ -29,8 +29,8 @@ namespace VoxBox {
 
 		piper::initialize(*m_piper_config);
 
-		m_sample_rate = m_piper_voice->synthesisConfig.sampleRate;
-		m_audio_stream_buffer->SetSampleRate(m_sample_rate);
+		//m_sample_rate = m_piper_voice->synthesisConfig.sampleRate;
+		m_audio_stream_buffer->SetSampleRate(m_piper_voice->synthesisConfig.sampleRate);
 		
 		m_is_initialized = true;
 	}

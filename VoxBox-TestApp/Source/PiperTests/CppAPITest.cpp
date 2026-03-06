@@ -31,7 +31,7 @@ int main() {
 	std::cout << "[VoxBox] TTS engine created and loaded successfully!\n";
 
 	// Strings for testing
-	std::string test_phrase = "Hello, I am an AI model.";
+	std::string test_phrase = "Hello. I am an AI model and I am going to steal your job";
 	std::string wav_file_path = "output_cpp.wav";
 
 	{ // Test synthesis result

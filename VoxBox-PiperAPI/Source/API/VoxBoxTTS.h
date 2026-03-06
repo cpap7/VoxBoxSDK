@@ -92,7 +92,7 @@ namespace VoxBox {
 
     // TTS engine API wrapper
     // Serves to dispatch calls to the core engine class
-    // and has TTS engine class factory functions
+    // and has its own factory function
     class VB_TTS_API CTTSEngine {
     private:
         std::unique_ptr<CTTSEngineImpl> m_engine = nullptr;

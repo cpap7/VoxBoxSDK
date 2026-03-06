@@ -151,7 +151,10 @@ namespace VoxBox {
 			}
 
 			// Update context
-			UpdateWhisperContext(params, i);
+			// Keep context between parts = false
+			// Reset on first part only = true
+			params.no_context = (i == 0) ? true : false;
+			//UpdateWhisperContext(params, i);
 
 			// Run transcription
 			if (whisper_full(m_context, params, part_data, part_length) != 0) {
@@ -195,7 +198,6 @@ namespace VoxBox {
 			audio_len = min_samples;
 		}
 		
-		// Language count is needed for the probability array
 		int lang_count = whisper_lang_max_id() + 1;
 		std::vector<float> lang_probs(lang_count, 0.0f);
 		

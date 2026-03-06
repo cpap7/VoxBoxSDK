@@ -19,12 +19,12 @@ namespace VoxBox {
 		std::optional<piper::SpeakerId> m_speaker_id = std::nullopt;
 
 		// Piper-defined data type ptrs
-		piper::PiperConfig* m_piper_config = nullptr;
 		piper::Voice* m_piper_voice = nullptr;
+		piper::PiperConfig* m_piper_config = nullptr;
 
 		// Audio output
 		std::unique_ptr<CCoreTTSAudioStreamBuffer> m_audio_stream_buffer = nullptr;
-		int m_sample_rate = 22050;
+		//int m_sample_rate = 22050;
 		
 		// Flags
 		bool m_is_initialized = false; // Tracks state
@@ -48,12 +48,12 @@ namespace VoxBox {
 		void SynthesizeStreaming(std::istream& a_input, std::ostream& a_output);
 		
 		// Getters
-		inline bool IsInitialized() const								{ return m_is_initialized;				}
-		inline int GetSampleRate() const								{ return m_sample_rate;					}
-		inline CCoreTTSAudioStreamBuffer* GetAudioStreamBuffer() const  { return m_audio_stream_buffer.get();	}
-		inline const STTSConfig& GetConfig() const						{ return m_config;						}
-		inline const SSynthesisConfig& GetSynthesisConfig() const		{ return m_config.m_synthesis_config;	}
-		//inline SSynthesisConfig GetDefaultSynthesisConfig()			{ return SSynthesisConfig();			}
+		inline bool IsInitialized() const								{ return m_is_initialized;						}
+		inline int GetSampleRate() const								{ return m_audio_stream_buffer->SampleRate();	}
+		inline CCoreTTSAudioStreamBuffer* GetAudioStreamBuffer() const  { return m_audio_stream_buffer.get();			}
+		inline const STTSConfig& GetConfig() const						{ return m_config;								}
+		inline const SSynthesisConfig& GetSynthesisConfig() const		{ return m_config.m_synthesis_config;			}
+		//inline SSynthesisConfig GetDefaultSynthesisConfig()			{ return SSynthesisConfig();					}
 
 		// Setters (runtime adjustment)
 		void SetSynthesisConfig(const SSynthesisConfig& a_synthesis_config);
