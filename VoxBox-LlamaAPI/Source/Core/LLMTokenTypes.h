@@ -1,12 +1,8 @@
 #pragma once
-#ifdef __cplusplus
-	#include <cstdint>
-	#include <string>
-#else
-	#include <stdint.h>
-#endif
 
-#ifdef __cplusplus
+#include <cstdint>
+#include <string>
+
 namespace VoxBox {
 	enum class ETokenType : uint8_t {
 		Unknown = 0,
@@ -43,4 +39,3 @@ namespace VoxBox {
 		return token_type;
 	}
 }
-#endif
