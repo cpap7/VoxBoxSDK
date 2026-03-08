@@ -41,3 +41,6 @@
 /VoxBox-WhisperAPI/bin
 /VoxBox-WhisperAPI/bin-int
 /VoxBox-TestApp/VoxBox-TestApp.vcxproj.filters
+/VoxBox-LlamaAPI/VoxBox-LlamaAPI.vcxproj.filters
+/VoxBox-TestApp/Assets/Models/ggml-small-q5_1.bin
+/VoxBox-TestApp/Assets/Models/ggml-tiny.bin
