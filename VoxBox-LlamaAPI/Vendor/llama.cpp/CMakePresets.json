@@ -2,10 +2,10 @@
   "version": 4,
   "configurePresets": [
     {
-        "name":  "base",
+        "name": "base",
         "hidden": true,
-        "generator":   "Ninja",
-        "binaryDir":   "${sourceDir}/build-${presetName}",
+        "generator": "Ninja",
+        "binaryDir": "${sourceDir}/build-${presetName}",
         "cacheVariables": {
             "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
             "CMAKE_INSTALL_RPATH": "$ORIGIN;$ORIGIN/.."
