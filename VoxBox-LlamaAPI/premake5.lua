@@ -21,17 +21,21 @@ project "VoxBox-LlamaAPI"
     includedirs {
         "Source",                                   
         "../VoxBox-Common/Source",                   -- VBCommon.h
-        "Vendor/llama.cpp/include",                  -- llama.h
+        "Vendor/llama.cpp/include",                  -- llama headers
         "Vendor/llama.cpp/ggml/include",             -- ggml headers
         "Vendor/llama.cpp/common",                   -- common.h
-        "Vendor/llama.cpp/src",                      -- internal llama headers
+        "Vendor/llama.cpp/src",                      
+        "Vendor/llama.cpp/vendor",                   -- bundled third-party deps
     }
 
-    -- Prebuilt llama.cpp libs (Ninja single-config: debug/<target>/lib)
+    -- Prebuilt llama.cpp libs 
     libdirs {
-        "Vendor/llama.cpp/%{cfg.buildcfg:lower()}/src",
-        "Vendor/llama.cpp/%{cfg.buildcfg:lower()}/ggml/src",
-        "Vendor/llama.cpp/%{cfg.buildcfg:lower()}/common",
+        "Vendor/llama.cpp/%{cfg.buildcfg:lower()}/src/%{cfg.buildcfg}",                     -- llama.lib
+        "Vendor/llama.cpp/%{cfg.buildcfg:lower()}/ggml/src/%{cfg.buildcfg}",                -- ggml.lib
+        "Vendor/llama.cpp/%{cfg.buildcfg:lower()}/ggml/src/ggml-base/%{cfg.buildcfg}",      -- ggml-base.lib
+        "Vendor/llama.cpp/%{cfg.buildcfg:lower()}/ggml/src/ggml-cpu/%{cfg.buildcfg}",       -- ggml-cpu.lib
+        "Vendor/llama.cpp/%{cfg.buildcfg:lower()}/ggml/src/ggml-vulkan/%{cfg.buildcfg}",    -- ggml-vulkan.lib
+        "Vendor/llama.cpp/%{cfg.buildcfg:lower()}/common/%{cfg.buildcfg}",                  -- common.lib
     }
 
     links {
@@ -39,7 +43,9 @@ project "VoxBox-LlamaAPI"
         "ggml",
         "ggml-base",
         "ggml-cpu",
+        "ggml-vulkan",
         "common",
+        "%{Library.Vulkan}",
     }
 
     filter "system:windows"
