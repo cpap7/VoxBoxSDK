@@ -68,11 +68,11 @@ namespace VoxBox {
 
 	struct SLLMPromptConfig {
 		std::string m_sys_prompt			= "";			// The actual system prompt text
-		std::string m_prompt_beg_delim		= "";			// e.g. "<|im_start|>user\n"
-		std::string m_prompt_end_delim		= "";			// e.g. "<|im_end|>\n<|im_start|>assistant\n"
 		std::string m_sys_prompt_beg_delim	= "";			// e.g. "<|im_start|>system\n"
 		std::string m_sys_prompt_mid_delim	= "";			// e.g. "<|im_end|>\n<|im_start|>user\n"
 		std::string m_sys_prompt_end_delim	= "";			// e.g. "<|im_end|>\n<|im_start|>assistant\n"
+		std::string m_prompt_beg_delim		= "";			// e.g. "<|im_start|>user\n"
+		std::string m_prompt_end_delim		= "";			// e.g. "<|im_end|>\n<|im_start|>assistant\n"
 		std::string m_think_beg_delim		= "";			// e.g. "<think>"
 		std::string m_think_end_delim		= "";			// e.g. "</think>"
 		bool m_try_prompts_by_model			= false;		// Auto-detect delimiters from model metadata

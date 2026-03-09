@@ -1,5 +1,6 @@
 #include "vblpch.h"
 #include "LLMEngine.h"
+#include "LLMModelMetadataLUT.h"
 
 // llama.cpp includes
 #include <llama.h>
@@ -656,6 +657,39 @@ namespace VoxBox {
 	}
 
 	void CLLMEngineImpl::TryAndSetPromptsFromModel() {
-		// TODO
+		if (!m_llama_model) {
+			return;
+		}
+
+		// Read "general.name" from GGUF metadata
+		char buffer[256] = {};
+		int32_t length = llama_model_meta_val_str(m_llama_model, "general.name", buffer, sizeof(buffer));
+		if (length < 0) {
+			printf("[VoxBox LLM] No model name in metadata, using provided delimiters\n");
+			return;
+		}
+
+		// Lookup in template map
+		const auto& templates = GetModelPromptTemplateMap();
+		auto iter = templates.find(std::string(buffer));
+		if (iter == templates.end()) {
+			printf("[VoxBox LLM] No template for model \"%s\", using provided delimiters\n", buffer);
+			return;
+		}
+
+		// Overwrite delimiter fields in live prompt config
+		const auto& model_prompt_template = iter->second;
+		auto& prompt_cfg = m_config.m_prompt_config;
+		
+		prompt_cfg.m_sys_prompt_beg_delim	= model_prompt_template.m_sys_prompt_beg_delim;
+		prompt_cfg.m_sys_prompt_mid_delim	= model_prompt_template.m_sys_prompt_mid_delim;
+		prompt_cfg.m_sys_prompt_end_delim	= model_prompt_template.m_sys_prompt_end_delim;
+		prompt_cfg.m_prompt_beg_delim		= model_prompt_template.m_prompt_beg_delim;
+		prompt_cfg.m_prompt_end_delim		= model_prompt_template.m_prompt_end_delim;
+		prompt_cfg.m_think_beg_delim		= model_prompt_template.m_think_beg_delim;
+		prompt_cfg.m_think_end_delim		= model_prompt_template.m_think_end_delim;
+
+		printf("[VoxBox LLM] Applied prompt template for model \%s\.\n", buffer);
+
 	}
 }
