@@ -44,3 +44,6 @@
 /VoxBox-LlamaAPI/VoxBox-LlamaAPI.vcxproj.filters
 /VoxBox-TestApp/Assets/Models/ggml-small-q5_1.bin
 /VoxBox-TestApp/Assets/Models/ggml-tiny.bin
+/VoxBox-LlamaAPI/bin/Debug-x86_64
+/VoxBox-LlamaAPI/bin-int/Debug-x86_64
+/VoxBox-LlamaAPI/ProjectNotes.txt
