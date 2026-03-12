@@ -28,7 +28,7 @@ namespace VoxBox {
 
 	// Used for embeddings
 	enum class EPoolingType : int8_t {
-		Unspecified = -1, // UNSPECIFIED = derive from model
+		Unspecified = -1, // Unspecified = derive from model
 		None,
 		Mean,
 		CLS,
@@ -41,15 +41,13 @@ namespace VoxBox {
 	// LLM context (based on llama_context_default_params)
 	struct SLLMContextConfig {
 		uint32_t m_n_ctx		= 0; // 0 = from model
-		uint32_t m_n_batch		= 1; // Logical max batch size
+		uint32_t m_n_batch		= 1; // Logical max batch size 
 		uint32_t m_n_ubatch		= 1; // Physical max batch size
 		uint32_t m_n_seq_max	= 1; // Max # of sequences (i.e., distinct states for recurrent models)
 		
-		int32_t m_n_threads		= 0; // # of threads to use for generation
-		int32_t m_threads_batch = 0; // # of threads to use for batch processing
+		int32_t m_n_threads		= -1; // # of threads to use for generation
+		int32_t m_threads_batch = 0;  // # of threads to use for batch processing
 		
-		//llama_flash_attn_type m_flash_attn			= LLAMA_FLASH_ATTN_TYPE_DISABLED;
-		//enum llama_pooling_type llama_pooling_type	= LLAMA_POOLING_TYPE_UNSPECIFIED; 
 		EFlashAttentionType m_flash_attention_type	= EFlashAttentionType::Default;
 		EPoolingType m_pooling_type					= EPoolingType::Default;
 
@@ -78,11 +76,15 @@ namespace VoxBox {
 		bool m_try_prompts_by_model			= false;		// Auto-detect delimiters from model metadata
 	};
 
-	// Token callback: (token_id, token_text, token_type, digit_probs_or_nullptr)
+	// Token callback: (a_token_id, a_token_text, a_token_type, a_digit_probs = nullptr)
 	// Return false to interrupt inference
 	using TokenCallbackFn = std::function<bool(int, const char*, int, const float*)>;
 	
-	////////////////////////////////////
+	//////////////////////////////////////////////////////
+
+	// Top-level config struct for interfacing with llama.cpp
+	// Used by the API class CLLMEngine (see VoxBoxLLM.h) 
+	// and the internal core class (see LLMEngine.h)
 	struct VB_LLM_API SLLMConfig {
 		SLLMPromptConfig m_prompt_config;
 		TokenCallbackFn m_token_callback_function = nullptr;
