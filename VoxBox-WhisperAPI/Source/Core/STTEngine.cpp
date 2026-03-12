@@ -314,21 +314,21 @@ namespace VoxBox {
 		a_params.duration_ms				= audio_processing_config.m_duration_ms;
 
 		// Thresholds
-		const auto& threshold_config = m_config.m_threshold_config;
-		a_params.thold_pt = threshold_config.m_word_thold;
-		a_params.entropy_thold = threshold_config.m_entropy_thold;
-		a_params.no_speech_thold = threshold_config.m_no_speech_thold;
-		a_params.logprob_thold = threshold_config.m_logprob_thold;
+		const auto& threshold_config	= m_config.m_threshold_config;
+		a_params.thold_pt				= threshold_config.m_word_thold;
+		a_params.entropy_thold			= threshold_config.m_entropy_thold;
+		a_params.no_speech_thold		= threshold_config.m_no_speech_thold;
+		a_params.logprob_thold			= threshold_config.m_logprob_thold;
 
 		// Temperature
-		const auto& temperature_config = m_config.m_temperature_config;
-		a_params.temperature = temperature_config.m_temperature;
-		a_params.temperature_inc = temperature_config.m_temperature_inc;
+		const auto& temperature_config	= m_config.m_temperature_config;
+		a_params.temperature			= temperature_config.m_temperature;
+		a_params.temperature_inc		= temperature_config.m_temperature_inc;
 		// TODO: no fallback option	
 
 		// Hardware
 		const auto& hardware_config = m_config.m_hardware_config;
-		a_params.n_threads = (hardware_config.m_thread_count > 0) ? hardware_config.m_thread_count : 0;
+		a_params.n_threads			= (hardware_config.m_thread_count > 0) ? hardware_config.m_thread_count : 0;
 		
 		// Output
 		const auto& output_config	= m_config.m_output_config;

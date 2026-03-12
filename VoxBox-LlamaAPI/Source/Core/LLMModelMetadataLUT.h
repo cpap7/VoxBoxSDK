@@ -320,6 +320,7 @@ namespace VoxBox {
 
 
 	inline const std::unordered_map<std::string, SLLMPromptTemplate>& GetModelPromptTemplateMap() {
+		// TODO: I don't exactly love the way this is set up, so I'll change this later
 		static const auto s_model_map = [] {
 			std::unordered_map<std::string, SLLMPromptTemplate> model_template_map;
 			for (const auto& entry : s_entries) {

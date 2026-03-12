@@ -328,12 +328,12 @@ namespace VoxBox {
 		}
 	}
 	
-	const char* CTTSEngine::GetVersion() {
-		return VB_TTS_VERSION;
-	}
-	
 	STTSConfig CTTSEngine::GetDefaultConfig() {
 		return STTSConfig();
+	}
+
+	const char* CTTSEngine::GetVersion() {
+		return VB_TTS_VERSION;
 	}
 
 }

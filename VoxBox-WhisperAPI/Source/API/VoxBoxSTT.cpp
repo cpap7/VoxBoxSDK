@@ -62,7 +62,7 @@ VB_STT_API int VB_CALL VB_STT_IsLoaded(VB_STT_EngineHandle_t a_engine) {
     }
 
     auto* stt_engine = reinterpret_cast<VoxBox::CSTTEngineImpl*>(a_engine);
-    return stt_engine != nullptr ? 1 : 0; // Check context initialization first 
+    return stt_engine->IsLoaded() ? 1 : 0; // Checks context initialization first 
 }
 
 VB_STT_API VB_STT_Result_t VB_CALL VB_STT_Transcribe(VB_STT_EngineHandle_t a_engine, const float* a_audio, int a_sample_count) {

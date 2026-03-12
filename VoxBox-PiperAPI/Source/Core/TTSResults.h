@@ -18,8 +18,5 @@ namespace VoxBox {
 		inline operator bool() { return Success(); }
 
 		inline void MoveSamples(std::vector<int16_t>&& a_samples) { m_samples = std::move(a_samples); }
-
-
-		
 	};
 }

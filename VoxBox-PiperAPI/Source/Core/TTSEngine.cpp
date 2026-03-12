@@ -6,7 +6,7 @@ namespace VoxBox {
 	//CTTSEngineImpl::CTTSEngineImpl() { }
 
 	CTTSEngineImpl::CTTSEngineImpl(const STTSConfig& a_piper_config)
-		: m_audio_stream_buffer(std::make_unique<CCoreTTSAudioStreamBuffer>()) {
+		: m_config(a_piper_config), m_audio_stream_buffer(std::make_unique<CCoreTTSAudioStreamBuffer>()) {
 
 		Init(a_piper_config);
 	}
@@ -19,7 +19,7 @@ namespace VoxBox {
 		if (m_is_initialized) {
 			Shutdown();
 		}
-		m_config = a_config;
+		m_config = a_config; // update config here in case of reinit
 		
 		m_piper_config = new piper::PiperConfig();
 		m_piper_voice = new piper::Voice();
@@ -29,8 +29,7 @@ namespace VoxBox {
 
 		piper::initialize(*m_piper_config);
 
-		//m_sample_rate = m_piper_voice->synthesisConfig.sampleRate;
-		m_audio_stream_buffer->SetSampleRate(m_piper_voice->synthesisConfig.sampleRate);
+		m_audio_stream_buffer->SetSampleRate(m_piper_voice->synthesisConfig.sampleRate); // 22050 Hz
 		
 		m_is_initialized = true;
 	}

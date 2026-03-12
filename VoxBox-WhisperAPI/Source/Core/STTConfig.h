@@ -1,13 +1,15 @@
 #pragma once
 #include <cstdint>
 #include <string>
+#include <thread>
 
 namespace VoxBox {
-	
+	// NOTE: Most of the magic numbers used are borrowed from the cli.cpp example app from whisper.cpp
+
 	/* File configs */
 
 	// Model config
-	struct SModelConfig {
+	struct SSTTModelConfig {
 		std::string m_model_path		= "";
 		std::string m_initial_prompt	= "";
 		std::string m_language			= "en";
@@ -40,7 +42,7 @@ namespace VoxBox {
 	/* Hardware configs */
 
 	struct SSTTHardwareConfig {
-		int m_thread_count				= 4;	// Default = 0 --> whisper.cpp auto detects # of threads to use
+		int m_thread_count				= std::min(4, (int32_t)std::thread::hardware_concurrency());
 		bool m_use_gpu					= true;	
 		//bool m_flash_attention		= false;
 	};
@@ -86,13 +88,12 @@ namespace VoxBox {
 	/* Audio configs */
 
 	// Sampling strategy for decoding
-	// Note: the one within whisper.cpp is 4 bytes
-	enum class ESamplingStrategy {
-		None		= 0,
-
+	enum class ESamplingStrategy : int8_t {
+		None		= -1,
+		
 		// Supported strategy types
-		Greedy		= 1,
-		BeamSearch	= 2,
+		Greedy		= 0,
+		BeamSearch	= 1,
 
 		Default		= Greedy
 	};
@@ -144,7 +145,7 @@ namespace VoxBox {
 	// Used in creating the API class CVBSTTEngine (see VoxBoxSTT.h)
 	// and the internal core engine class CCoreSTTEngine (see STTEngine.h)
 	struct VB_STT_API SSTTConfig {
-		SModelConfig            m_model_config;
+		SSTTModelConfig         m_model_config;
         SGrammarConfig          m_grammar_config;
         SFeatureConfig          m_feature_config;
         SDTWConfig              m_dtw_config;

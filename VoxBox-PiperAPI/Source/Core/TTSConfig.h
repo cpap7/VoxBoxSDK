@@ -5,7 +5,7 @@
 
 namespace VoxBox {
     // Voice model paths
-    struct SVoiceModelConfig {
+    struct STTSModelConfig {
         std::optional<std::filesystem::path> m_tashkeel_model_path;   // Path to libtashkeel ORT model
 
         std::filesystem::path m_model_onnx_path;                      // Path to ONNX voice file (see https://github.com/mush42/libtashkeel/) 
@@ -43,10 +43,10 @@ namespace VoxBox {
     //////////////////////////////////////////////////////
 
     // Top-level config struct for interfacing with Piper
-    // Used by the API class CVBTTSEngine (see VoxBoxTTS.h) 
+    // Used by the API class CTTSEngine (see VoxBoxTTS.h) 
     // and the internal core class (see TTSEngine.h)
     struct VB_TTS_API STTSConfig {
-        SVoiceModelConfig   m_voice_config;
+        STTSModelConfig     m_voice_config;
         SSynthesisConfig    m_synthesis_config;
         STTSHardwareConfig  m_hardware_config;
     };
