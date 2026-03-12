@@ -17,18 +17,20 @@ project "VoxBox-TestApp"
     includedirs {
         "../VoxBox-PiperAPI/Source/API",        -- For VoxBoxTTS.h
         "../VoxBox-WhisperAPI/Source/API",      -- For VoxBoxSTT.h
+        "../VoxBox-LlamaAPI/Source/API",        -- For VoxBoxLLM.h
         "../VoxBox-Common/Source",              -- For VBCommon.h
     }
 
     libdirs {
-        "../VoxBox-PiperAPI/bin/%{cfg.buildcfg}-%{cfg.architecture}",  -- VoxBox-Piper.lib
-        "../VoxBox-WhisperAPI/bin/%{cfg.buildcfg}-%{cfg.architecture}",  -- VoxBox-WhisperAPI.lib
-
+        "../VoxBox-PiperAPI/bin/%{cfg.buildcfg}-%{cfg.architecture}",       -- VoxBox-Piper.lib
+        "../VoxBox-WhisperAPI/bin/%{cfg.buildcfg}-%{cfg.architecture}",     -- VoxBox-WhisperAPI.lib
+        "../VoxBox-LlamaAPI/bin/%{cfg.buildcfg}-%{cfg.architecture}",     -- VoxBox-LlamaAPI.lib
     }
 
     links {
         "VoxBox-PiperAPI",
         "VoxBox-WhisperAPI",
+        "VoxBox-LlamaAPI",
     }
 
     postbuildcommands {
@@ -39,9 +41,12 @@ project "VoxBox-TestApp"
         '{COPYFILE} "../VoxBox-PiperAPI/bin/%{cfg.buildcfg}-%{cfg.architecture}/VoxBox-PiperAPI.dll" "%{cfg.targetdir}"',
         '{COPYFILE} "../VoxBox-PiperAPI/bin/%{cfg.buildcfg}-%{cfg.architecture}/piper_phonemize.dll" "%{cfg.targetdir}"',
         '{COPYFILE} "../VoxBox-PiperAPI/bin/%{cfg.buildcfg}-%{cfg.architecture}/piper.exe" "%{cfg.targetdir}"',
-        -- Whisper        
+        
+        -- whisper.cpp
         '{COPYFILE} "../VoxBox-WhisperAPI/bin/%{cfg.buildcfg}-%{cfg.architecture}/VoxBox-WhisperAPI.dll" "%{cfg.targetdir}"',
 
+        -- llama.cpp
+        '{COPYFILE} "../VoxBox-LlamaAPI/bin/%{cfg.buildcfg}-%{cfg.architecture}/VoxBox-LlamaAPI.dll" "%{cfg.targetdir}"',
     }
 
     filter "system:windows"
