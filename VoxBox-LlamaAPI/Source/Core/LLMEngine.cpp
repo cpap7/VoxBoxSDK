@@ -65,6 +65,20 @@ namespace VoxBox {
 		}
 	}
 
+	static bool s_llama_common_initialized = false;
+
+	static void InitLlamaCommonIfNecessary() {
+		if (!s_llama_common_initialized) {
+			common_init();
+
+			//common_log_pause(common_log_main());
+			//static void llama_log_callback_null(ggml_log_level level, const char * text, void * user_data) { (void) level; (void) text; (void) user_data; }
+			//llama_log_set(llama_log_callback_null, NULL);
+
+			s_llama_common_initialized = true;
+		}
+	}
+
 	CLLMEngineImpl::CLLMEngineImpl(const SLLMConfig& a_config) 
 		: m_config(a_config) {
 		Init(a_config);
@@ -72,6 +86,7 @@ namespace VoxBox {
 	
 	CLLMEngineImpl::~CLLMEngineImpl() {
 		Shutdown();
+		
 	}
 
 	void CLLMEngineImpl::Init(const SLLMConfig& a_config) {
@@ -79,7 +94,8 @@ namespace VoxBox {
 			Shutdown();
 		}
 		m_config = a_config; // Update config if it's changed upon reinit
-
+		
+		InitLlamaCommonIfNecessary();
 		InitLlamaBackendIfNecessary();
 
 		LoadModel();
@@ -146,10 +162,18 @@ namespace VoxBox {
 		// Clear MoE override data
 		m_moe_patterns.clear();
 		m_moe_overrides.clear();
+		
+		SnapshotClear();
 
 		m_token_count		= 0;
 		m_last_token_type	= 0;
 		m_is_initialized	= false;
+
+		if (s_llama_backend_initialized) {
+			llama_backend_free();
+			s_llama_backend_initialized = false;
+			s_llama_common_initialized = false;
+		}
 	}
 
 	SInferenceResult CLLMEngineImpl::Query(const char* a_prompt, bool a_skip_sys_prompt_end, bool a_resume_from_snapshot) {
@@ -213,7 +237,7 @@ namespace VoxBox {
 			return result;
 		}
 
-		if (m_config.m_context_config.m_embeddings) {
+		if (!m_config.m_context_config.m_embeddings) {
 			result.m_result_code = EResultCode::InvalidParameter;
 			return result;
 		}
@@ -302,6 +326,116 @@ namespace VoxBox {
 		}
 	}
 
+	void CLLMEngineImpl::SnapshotClear() {
+		if (m_context_state_snapshot) {
+			m_context_state_snapshot.reset();
+		}
+	}
+
+	bool CLLMEngineImpl::SnapshotUpdate() {
+		// Clear old snapshot, then capture a new one
+		SnapshotClear();
+
+		m_context_state_snapshot = CreateSnapshot();
+		if (!m_context_state_snapshot) {
+			printf("[VoxBox LLM] Error: Failed to update snapshot.\n");
+			return false;
+		}
+
+		return true;
+	}
+
+	bool CLLMEngineImpl::SnapshotRestore() {
+		if (!m_context_state_snapshot) {
+			printf("[VoxBox LLM] Error: No snapshot to restore.\n");
+			return false;
+		}
+		return RestoreStateSnapshot(*m_context_state_snapshot);
+	}
+
+	bool CLLMEngineImpl::SnapshotToFile(const char* a_file_path) {
+		// Binary format: [last_tok_type (int)] [tok_cnt (int)] [size (size_t)] [data (uint8_t[])]
+		
+		if (!m_context_state_snapshot || m_context_state_snapshot->IsEmpty()) {
+			printf("[VoxBox LLM] Error: No valid snapshot to write.\n");
+			return false;
+		}
+		
+		if (!a_file_path) {
+			printf("[VoxBox LLM] Error: invalid file path.\n");
+			return false;
+		}
+
+		FILE* file = fopen(a_file_path, "wb");
+		if (!file) {
+			printf("[VoxBox LLM] Error: Failed to open \"%s\" for writing.\n", a_file_path);
+			return false;
+		}
+
+		bool write_ok = true;
+		const auto& snapshot = *m_context_state_snapshot;
+
+		write_ok = write_ok && fwrite(&snapshot.m_last_token_type,	sizeof(snapshot.m_last_token_type), 1, file) == 1;
+		write_ok = write_ok && fwrite(&snapshot.m_token_count,		sizeof(snapshot.m_token_count),		1, file) == 1;
+
+		size_t data_size = snapshot.m_data.size();
+		write_ok = write_ok && fwrite(&data_size,					sizeof(data_size), 1,	file) == 1;
+		write_ok = write_ok && fwrite(snapshot.m_data.data(),		1, data_size,			file) == data_size;
+		
+		fclose(file);
+
+		if (!write_ok) {
+			printf("[VoxBox LLM] Error: Incomplete write to \"%s\".\n", a_file_path);
+			return false;
+		}
+
+		printf("[VoxBox LLM] Snapshot written to \"%s\" (%zu bytes).\n", a_file_path, data_size);
+		return true;
+	}
+
+	bool CLLMEngineImpl::SnapshotFromFile(const char* a_file_path) {
+		if (!a_file_path) {
+			printf("[VoxBox LLM] Error: Null file path.\n");
+			return false;
+		}
+
+		FILE* file = fopen(a_file_path, "rb");
+		if (!file) {
+			printf("[VoxBox LLM] Error: Failed to open \"%s\" for reading.\n", a_file_path);
+			return false;
+		}
+
+		bool read_ok = true;
+		auto state = std::make_unique<SLLMSnapshot>();
+
+		read_ok = read_ok && fread(&state->m_last_token_type,	sizeof(state->m_last_token_type),	1, file) == 1;
+		read_ok = read_ok && fread(&state->m_token_count,		sizeof(state->m_token_count),		1, file) == 1;
+
+		size_t data_size = 0;
+		read_ok = read_ok && fread(&data_size, sizeof(data_size), 1, file) == 1;
+
+		if (!read_ok || data_size == 0) {
+			printf("[VoxBox LLM] Error: Failed to read snapshot header from \"%s\".\n", a_file_path);
+			fclose(file);
+			return false;
+		}
+
+		state->m_data.resize(data_size);
+		read_ok = fread(state->m_data.data(), 1, data_size, file) == data_size;
+		fclose(file);
+		if(!read_ok) {
+			printf("[VoxBox LLM] Error: Incomplete read from \"%s\".\n", a_file_path);
+			return false;
+		}
+
+		// Replace current in-memory snapshot
+		SnapshotClear();
+		m_context_state_snapshot = std::move(state);
+
+		printf("[VoxBox LLM] Snapshot loaded from \"%s\" (%zu bytes).\n", a_file_path, data_size);
+		return true;
+	}
+
 	void CLLMEngineImpl::SetTokenCallback(TokenCallbackFn a_callback) {
 		m_config.m_token_callback_function = std::move(a_callback);
 	}
@@ -325,7 +459,7 @@ namespace VoxBox {
 		llama_model_params model_params = llama_model_default_params();
 		
 		model_params.n_gpu_layers	= vb_model_cfg.m_n_gpu_layers;
-		model_params.use_mmap		= vb_model_cfg.m_use_mlock;
+		model_params.use_mlock		= vb_model_cfg.m_use_mlock;
 		model_params.use_mmap		= vb_model_cfg.m_use_mmap;
 
 		// Build MoE tensor buffer type overrides
@@ -366,7 +500,7 @@ namespace VoxBox {
 		// Update # of threads that can be used
 		int32_t n_threads = vb_ctx_cfg.m_n_threads;
 		if (n_threads <= 0) {
-			n_threads = static_cast<int32_t>(cpu_get_num_physical_cores());
+			n_threads = cpu_get_num_physical_cores();
 		}
 		ctx_params.n_threads		= n_threads;
 		ctx_params.n_threads_batch	= (vb_ctx_cfg.m_threads_batch > 0) ? vb_ctx_cfg.m_threads_batch : n_threads;
@@ -384,7 +518,7 @@ namespace VoxBox {
 			// Embeddings mode
 			ctx_params.embeddings = true;
 
-			int32_t n_ctx_train = static_cast<uint32_t>(llama_model_n_ctx_train(m_llama_model));
+			int32_t n_ctx_train = llama_model_n_ctx_train(m_llama_model);
 			if (vb_ctx_cfg.m_n_ctx == 0 || vb_ctx_cfg.m_n_ctx < n_ctx_train) {
 				ctx_params.n_ctx = n_ctx_train;
 			}
@@ -439,6 +573,64 @@ namespace VoxBox {
 		if (memory) {
 			llama_memory_clear(memory, true);
 		}
+	}
+
+	std::unique_ptr<SLLMSnapshot> CLLMEngineImpl::CreateSnapshot() {
+		if (!m_is_initialized || !m_llama_context) {
+			printf("[VoxBox LLM] Error: Cannot create state. Not initialized and/or missing llama context.\n");
+			return nullptr;
+		}
+
+		// Query how many bytes the context will need
+		size_t state_size = llama_state_get_size(m_llama_context);
+		if (state_size == 0) {
+			printf("[VoxBox LLM] Error: llama_get_state_size returned 0.\n");
+			return nullptr;
+		}
+
+		// Allocate memory & serialize
+		auto state = std::make_unique<SLLMSnapshot>();
+		state->m_data.resize(state_size);
+
+		size_t written_data = llama_state_get_data(m_llama_context, state->m_data.data(), state_size);
+		if (written_data != state_size) {
+			printf("[VoxBox LLM] Error: llama_state_get_data wrote %zu bytes (expected: %zu bytes).\n", written_data, state_size);
+			return nullptr;
+		}
+
+		// Save snapshot metadata needed for resuming the inference 
+		state->m_token_count = m_token_count;
+		state->m_last_token_type = m_last_token_type;
+
+		printf("[VoxBox LLM] Context state snapshot created: %zu bytes (token count: %d, last token type: %d).\n", state_size, m_token_count, m_last_token_type);
+		return state;
+	}
+
+	bool CLLMEngineImpl::RestoreStateSnapshot(const SLLMSnapshot& a_state) {
+		if (!m_is_initialized || !m_llama_context) {
+			printf("[VoxBox LLM] Error: Cannot create state. Not initialized and/or missing llama context.\n");
+			return false;
+		}
+
+		if (a_state.IsEmpty()) {
+			printf("[VoxBox LLM] Error: Invalid state (empty data).\n");
+			return false;
+		}
+
+		// Deserialize context blob into llama
+		size_t read_data = llama_state_set_data(m_llama_context, a_state.m_data.data(), a_state.Size());
+		if (read_data != a_state.Size()) {
+			printf("[VoxBox LLM] Error: llama_state_set_data read %zu bytes (expected: %zu bytes)\n", read_data, a_state.Size());
+			return false;
+		}
+
+		// Restore metadata so engine can resume correctly
+		m_token_count = a_state.m_token_count;
+		m_last_token_type = a_state.m_last_token_type;
+
+		printf("[VoxBox LLM] Context state snapshot restored: %zu bytes (token count: %d, last token type: %d).\n", a_state.Size(), m_token_count, m_last_token_type);
+
+		return true;
 	}
 
 	bool CLLMEngineImpl::DecodeSingleToken(int32_t a_token, int a_position, bool a_output_logits) {
@@ -552,10 +744,11 @@ namespace VoxBox {
 		const llama_vocab* vocab = llama_model_get_vocab(m_llama_model);
 		
 		int n_ctx = static_cast<int>(llama_n_ctx(m_llama_context));
-		
-		bool is_thinker = !vb_prompt_cfg.m_think_beg_delim.empty();
-		bool is_thinking = (m_last_token_type == static_cast<int>(ETokenType::ThinkBegin) || m_last_token_type == static_cast<int>(ETokenType::ThinkText));
-		bool irq = false; // Interrupt request
+
+		bool is_thinker		= !vb_prompt_cfg.m_think_beg_delim.empty();
+		bool is_thinking	= (m_last_token_type == static_cast<int>(ETokenType::ThinkBegin) || m_last_token_type == static_cast<int>(ETokenType::ThinkText));
+		bool reached_eog	= false;
+		bool irq			= false; // Interrupt request
 		
 		m_inference_text.clear();
 		llama_batch batch = llama_batch_init(1, 0, 1);
@@ -573,7 +766,9 @@ namespace VoxBox {
 
 				if (llama_decode(m_llama_context, batch) != 0) {
 					llama_batch_free(batch);
-					return false;
+					reached_eog = true;
+					//return false;
+					break;
 				}
 
 				llama_sampler_accept(m_llama_sampler, irq_token);
@@ -592,7 +787,10 @@ namespace VoxBox {
 			// TODO: Clean this up
 			int token_type = 0;
 			if (is_eog) {
+				++n_current;
+				reached_eog = true;
 				token_type = static_cast<int>(ETokenType::SampledEOG);
+				break;
 			}
 			
 			else if (is_thinker && piece == vb_prompt_cfg.m_think_beg_delim) {
@@ -629,7 +827,7 @@ namespace VoxBox {
 				);
 			}
 
-			// is_thinking should be false after callback see ThinkEnd
+			// is_thinking should be false after callback sees ThinkEnd
 			if (is_thinker && token_type == static_cast<int>(ETokenType::ThinkEnd)) {
 				is_thinking = false;
 			}
@@ -650,8 +848,15 @@ namespace VoxBox {
 			}
 
 		}
-		
+
 		llama_batch_free(batch);
+
+		// Check if we exited w/o EOG
+		if(!reached_eog) {
+			printf("[VoxBox LLM] Error: Context length reached w/o EOG token.\n");
+			return false;
+		}
+		
 		m_token_count = static_cast<int>(llama_memory_seq_pos_max(llama_get_memory(m_llama_context), 0)) + 1;
 		return true;
 	}
