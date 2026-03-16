@@ -15,7 +15,7 @@ namespace VoxBox {
 	class CSTTEngineImpl {
 	private:
 		SSTTConfig m_config;
-		CCoreSTTProgressTracker m_progress_tracker;
+		CSTTProgressTracker m_progress_tracker;
 
 		// whisper.cpp 
 		whisper_context* m_context = nullptr;

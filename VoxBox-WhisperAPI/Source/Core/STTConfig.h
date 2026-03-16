@@ -139,6 +139,9 @@ namespace VoxBox {
 		bool  m_no_fallback		= false;   // Disable temperature fallback
 	};
 
+	using ProgressCallbackFn = std::function<void(int)>;
+
+
 	///////////////////////////////////////////////////////////
 	
     // Top-level config struct for interfacing w/ whisper.cpp

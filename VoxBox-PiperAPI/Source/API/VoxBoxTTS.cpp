@@ -153,17 +153,6 @@ VB_TTS_API int VB_CALL VB_TTS_SynthesizeToWAVFile(VB_TTS_EngineHandle_t a_engine
 	}
 }
 
-VB_TTS_API void VB_CALL VB_TTS_SetProgressCallback(VB_TTS_EngineHandle_t a_engine, void (*a_callback)(int a_progress)) {
-	// TODO: implement once its within the core engine as a feature
-	(void)a_engine;
-	(void)a_callback;
-}
-
-VB_TTS_API void VB_CALL VB_TTS_Cancel(VB_TTS_EngineHandle_t a_engine) {
-	// TODO: implement once its within the core engine as a feature
-	(void)a_engine;
-}
-
 VB_TTS_API void VB_CALL VB_TTS_SetSpeaker(VB_TTS_EngineHandle_t a_engine, int a_speaker_id) {
 	if (!a_engine) {
 		return;
@@ -198,7 +187,6 @@ VB_TTS_API void VB_CALL VB_TTS_SetSpeed(VB_TTS_EngineHandle_t a_engine, float a_
 VB_TTS_API void VB_CALL VB_TTS_FreeSamples(int16_t* a_samples) {
 	if (a_samples) {
 		free(a_samples);
-		//a_samples = nullptr;
 	}
 }
 
@@ -254,8 +242,8 @@ namespace VoxBox {
 		return m_engine->IsInitialized();
 	}
 
-	SSynthesisResult CTTSEngine::Synthesize(const std::string& a_text) {
-		SSynthesisResult result;
+	SAudioResult CTTSEngine::Synthesize(const std::string& a_text) {
+		SAudioResult result;
 		if (!m_engine || !m_engine->IsInitialized()) {
 			result.m_result_code = EResultCode::NotInitialized;
 			return result;
@@ -308,14 +296,6 @@ namespace VoxBox {
 			config.m_noise_scale = a_noise_scale;
 			m_engine->SetSynthesisConfig(config);
 		}
-	}
-
-	void CTTSEngine::SetProgressCallback(ProgressCallbackFn a_callback_function) {
-		(void)a_callback_function; // TODO: Implement core engine function
-	}
-	
-	void CTTSEngine::Cancel() {
-		// TODO
 	}
 
 	// Factory

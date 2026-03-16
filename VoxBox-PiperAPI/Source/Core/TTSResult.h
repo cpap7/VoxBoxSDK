@@ -3,7 +3,7 @@
 #include <cstdint>
 
 namespace VoxBox {
-	struct SSynthesisResult {
+	struct SAudioResult {
 		std::vector<int16_t> m_samples;
 		int m_sample_rate = 22050; // Piper default
 		EResultCode m_result_code = EResultCode::NotInitialized;

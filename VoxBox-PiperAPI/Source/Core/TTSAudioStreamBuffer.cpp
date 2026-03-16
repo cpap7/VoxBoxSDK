@@ -3,7 +3,7 @@
 
 namespace VoxBox {
 
-	void CCoreTTSAudioStreamBuffer::Push(const std::vector<int16_t>& a_samples) {
+	void CTTSAudioStreamBuffer::Push(const std::vector<int16_t>& a_samples) {
 		std::lock_guard<std::mutex> lock(m_mutex);
 
 		m_shared_buffer.insert(m_shared_buffer.end(), a_samples.begin(), a_samples.end());
@@ -12,7 +12,7 @@ namespace VoxBox {
 		m_condition.notify_one();
 	}
 
-	void CCoreTTSAudioStreamBuffer::MarkAsFinished() {
+	void CTTSAudioStreamBuffer::MarkAsFinished() {
 		std::lock_guard<std::mutex> lock(m_mutex);
 
 		m_audio_is_finished = true;
@@ -21,8 +21,7 @@ namespace VoxBox {
 		m_condition.notify_one();
 	}
 
-
-	bool CCoreTTSAudioStreamBuffer::WaitAndConsume(std::vector<int16_t>& a_out_samples) {
+	bool CTTSAudioStreamBuffer::WaitAndConsume(std::vector<int16_t>& a_out_samples) {
 		std::unique_lock<std::mutex> lock(m_mutex);
 
 		m_condition.wait(lock, [this] {
@@ -44,11 +43,10 @@ namespace VoxBox {
 		return true;
 	}
 
-	void CCoreTTSAudioStreamBuffer::Reset() {
+	void CTTSAudioStreamBuffer::Reset() {
 		std::lock_guard<std::mutex> lock(m_mutex);
 
 		m_shared_buffer.clear();
-		//m_internal_buffer.clear();
 
 		m_audio_is_ready = false;
 		m_audio_is_finished = false;

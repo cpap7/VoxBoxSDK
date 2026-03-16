@@ -18,8 +18,8 @@ project "VoxBox-WhisperAPI"
     }
 
     includedirs {
-        "Source",                                    -- For vbwpch.h
-        "../VoxBox-Shared",                          -- For global utilities
+        "Source",
+        "../VoxBox-Common/Source",
         "Vendor/whisper.cpp/include",                -- whisper.h
         "Vendor/whisper.cpp/ggml/include",           -- ggml headers
     }

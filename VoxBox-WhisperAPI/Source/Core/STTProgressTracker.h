@@ -4,8 +4,8 @@
 
 namespace VoxBox {
 	using ProgressCallbackFn = std::function<void(int)>;
-	
-	class CCoreSTTProgressTracker {
+
+	class CSTTProgressTracker {
 	private:
 		ProgressCallbackFn m_callback_function; // Defined by the user
 

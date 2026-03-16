@@ -48,7 +48,7 @@
 #include <thread>
 #include <vector>
 
-#include "../../VoxBox-Common/Source/VBCommon.h"
+#include <VBCommon.h>
 
 // DLL Macros
 #ifdef VB_PLATFORM_WINDOWS

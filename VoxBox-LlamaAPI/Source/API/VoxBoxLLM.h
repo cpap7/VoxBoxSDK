@@ -1,5 +1,5 @@
 #pragma once
-#include "../../VoxBox-Common/Source/VBCommon.h"
+#include <VBCommon.h>
 
 #ifdef __cplusplus
 	#include <cstdint>
@@ -97,6 +97,7 @@ extern "C" {
 	VB_LLM_API void VB_CALL VB_LLM_SetTokenCallback(VB_LLM_EngineHandle_t a_engine_handle, VB_LLM_TokenCallbackFn a_callback);
 
 	// Snapshot management
+	// NOTE: returning 1 == success, returning 0 == failure
 	VB_LLM_API void VB_CALL VB_LLM_SnapshotClear(VB_LLM_EngineHandle_t a_engine_handle);
 	VB_LLM_API int VB_CALL VB_LLM_SnapshotUpdate(VB_LLM_EngineHandle_t a_engine_handle);
 	VB_LLM_API int VB_CALL VB_LLM_SnapshotRestore(VB_LLM_EngineHandle_t a_engine_handle);

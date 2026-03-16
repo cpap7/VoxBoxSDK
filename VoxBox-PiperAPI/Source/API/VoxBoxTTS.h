@@ -1,6 +1,5 @@
 #pragma once
-// TODO: Change this
-#include "../../VoxBox-Common/Source/VBCommon.h"
+#include <VBCommon.h>
 
 #ifdef __cplusplus
     #include <cstdint>
@@ -13,11 +12,9 @@
     #include <atomic>
     
     #include "../Core/TTSConfig.h"
-    #include "../Core/TTSResults.h"
+    #include "../Core/TTSResult.h"
 #else
     #include <stdint.h>
-   //#include <stddef.h>
-   //#include <stdbool.h>
 #endif
 
 #define VB_TTS_VERSION "1.0.0"
@@ -26,8 +23,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-    /* FOR INTEROP WITH C++ */
 
     typedef struct VB_TTS_Handle_t* VB_TTS_EngineHandle_t; // Opaque handle for C
 
@@ -63,10 +58,6 @@ extern "C" {
     VB_TTS_API VB_TTS_AudioResult_t VB_CALL VB_TTS_Synthesize(VB_TTS_EngineHandle_t a_engine, const char* a_text);
     VB_TTS_API int16_t* VB_CALL VB_TTS_SynthesizeSimple(VB_TTS_EngineHandle_t a_engine, const char* a_text, int* a_out_sample_count);
     VB_TTS_API int VB_CALL VB_TTS_SynthesizeToWAVFile(VB_TTS_EngineHandle_t a_engine, const char* a_text, const char* a_wav_file_path);
-
-    // Control callbacks/cancel synthesis
-    VB_TTS_API void VB_CALL VB_TTS_SetProgressCallback(VB_TTS_EngineHandle_t a_engine, void (*a_callback)(int a_progress));
-    VB_TTS_API void VB_CALL VB_TTS_Cancel(VB_TTS_EngineHandle_t a_engine);
 
     // Voice settings (runtime adjustable)
     VB_TTS_API void VB_CALL VB_TTS_SetSpeaker(VB_TTS_EngineHandle_t a_engine, int a_speaker_id);
@@ -113,17 +104,13 @@ namespace VoxBox {
         explicit operator bool() const { return IsLoaded(); }
 
         // Synthesis
-        SSynthesisResult Synthesize(const std::string& a_text);
+        SAudioResult Synthesize(const std::string& a_text);
         bool SynthesizeToWAVFile(const std::string& a_text, const std::string& a_wav_path);
 
         // Voice settings
         void SetSpeakerID(int a_speaker_id);
         void SetSpeed(float a_length_scale);
         void SetNoiseScale(float a_noise_scale);
-        
-        // Control
-        void SetProgressCallback(ProgressCallbackFn a_callback_function);
-        void Cancel();
 
         // Factory
         static std::unique_ptr<CTTSEngine> Create(const STTSConfig& a_config);

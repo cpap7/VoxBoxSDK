@@ -12,7 +12,7 @@ namespace VoxBox {
 	class CTTSEngineImpl {
 	private:
 		// VoxBox-defined config struct for piper
-		STTSConfig m_config; // Cached for reinitialization
+		STTSConfig m_config; 
 
 		// Speech-synthesis state
 		std::optional<std::map<piper::Phoneme, float>> m_phoneme_silence_seconds = std::nullopt;
@@ -23,16 +23,12 @@ namespace VoxBox {
 		piper::PiperConfig* m_piper_config = nullptr;
 
 		// Audio output
-		std::unique_ptr<CCoreTTSAudioStreamBuffer> m_audio_stream_buffer = nullptr;
-		//int m_sample_rate = 22050;
+		std::unique_ptr<CTTSAudioStreamBuffer> m_audio_stream_buffer = nullptr;
 		
 		// Flags
 		bool m_is_initialized = false; // Tracks state
 
 	public:
-		//CTTSEngineImpl() = delete;
-		//CTTSEngineImpl(const CTTSEngineImpl&) = delete;
-		//void operator=(const CTTSEngineImpl&) = delete;
 
 		explicit CTTSEngineImpl(const STTSConfig& a_piper_config);
 		~CTTSEngineImpl();
@@ -50,16 +46,13 @@ namespace VoxBox {
 		// Getters
 		inline bool IsInitialized() const								{ return m_is_initialized;						}
 		inline int GetSampleRate() const								{ return m_audio_stream_buffer->SampleRate();	}
-		inline CCoreTTSAudioStreamBuffer* GetAudioStreamBuffer() const  { return m_audio_stream_buffer.get();			}
+		inline CTTSAudioStreamBuffer* GetAudioStreamBuffer() const		{ return m_audio_stream_buffer.get();			}
 		inline const STTSConfig& GetConfig() const						{ return m_config;								}
 		inline const SSynthesisConfig& GetSynthesisConfig() const		{ return m_config.m_synthesis_config;			}
-		//inline SSynthesisConfig GetDefaultSynthesisConfig()			{ return SSynthesisConfig();					}
 
 		// Setters (runtime adjustment)
 		void SetSynthesisConfig(const SSynthesisConfig& a_synthesis_config);
 		inline void SetSpeakerID(piper::SpeakerId a_id) { m_speaker_id = a_id; } // piper::SpeakerId passed by value since it's technically int64_t
-
-		
 
 	private:
 		// Internal helpers

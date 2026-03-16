@@ -16,7 +16,7 @@ project "VoxBox-Common"
     defines {
       "VB_STT_EXPORT",
       "VB_TTS_EXPORT",
-      "VB_LLM_EXPORT"
+      "VB_LLM_EXPORT",
     }
 
     filter "system:windows"

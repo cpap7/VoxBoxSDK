@@ -5,13 +5,11 @@
 #include <cstdint>
 
 namespace VoxBox {
-	class CCoreTTSAudioStreamBuffer {
+	class CTTSAudioStreamBuffer {
 	private:
 		std::mutex m_mutex;
 		std::condition_variable m_condition;		// For consumer thread: blocking 
-
 		std::vector<int16_t> m_shared_buffer;		// For producer thread: writes samples here under lock
-		//std::vector<int16_t> m_internal_buffer;
 
 		int m_sample_rate = 22050; // Piper default
 
@@ -20,8 +18,8 @@ namespace VoxBox {
 		bool m_audio_is_finished = false;
 
 	public:
-		CCoreTTSAudioStreamBuffer() = default;
-		~CCoreTTSAudioStreamBuffer() = default;
+		CTTSAudioStreamBuffer() = default;
+		~CTTSAudioStreamBuffer() = default;
 
 		// Producer functions
 		// Called by synthesis thread

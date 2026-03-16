@@ -3,7 +3,7 @@
 
 namespace VoxBox {
 
-	void CCoreSTTProgressTracker::ReportProgress(int a_part_progress) {
+	void CSTTProgressTracker::ReportProgress(int a_part_progress) {
 		if (!m_callback_function) {
 			return;
 		}
@@ -22,7 +22,7 @@ namespace VoxBox {
 		m_callback_function(full_progress);
 	}
 	
-	void CCoreSTTProgressTracker::Reset() {
+	void CSTTProgressTracker::Reset() {
 		m_is_aborted.store(false);
 		m_parts_count = 1;
 	}

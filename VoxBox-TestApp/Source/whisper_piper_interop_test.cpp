@@ -80,7 +80,7 @@ int main() {
 
 	// Convert text to audio via TTS engine
 	const std::string text_to_convert = "Hello. I am an AI model and I am going to steal your job";
-	VoxBox::SSynthesisResult tts_result = tts_engine->Synthesize(text_to_convert);
+	VoxBox::SAudioResult tts_result = tts_engine->Synthesize(text_to_convert);
 	
 	if (!tts_result.Success()) {
 		std::cerr << "[VoxBox] TTS synthesis failed\n";

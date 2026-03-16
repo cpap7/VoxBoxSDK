@@ -8,10 +8,10 @@ project "VoxBox-TestApp"
     objdir ("bin-int/%{cfg.buildcfg}-%{cfg.architecture}")
 
     files {
-        "Source/**.h",
-        "Source/**.c",
-        "Source/**.hpp",
-        "Source/**.cpp"
+--        "Source/**.h",
+--        "Source/**.c",
+--        "Source/**.hpp",
+--        "Source/**.cpp"
     }
 
     includedirs {

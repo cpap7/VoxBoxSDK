@@ -34,8 +34,8 @@ int main() {
 	std::string test_phrase = "Hello. I am an AI model and I am going to steal your job";
 	std::string wav_file_path = "output_cpp.wav";
 
-	{ // Test synthesis result
-		VoxBox::SSynthesisResult result = engine->Synthesize(test_phrase);
+	{ // Test audio synthesis result
+		VoxBox::SAudioResult result = engine->Synthesize(test_phrase);
 		if (result.Success()) {
 			std::cout << "[VoxBox] Audio synthesis succeeded: " 
 				<< result.SampleCount() << " samples @ " 
@@ -45,16 +45,6 @@ int main() {
 			std::cerr << "[VoxBox] Audio synthesis failed!\n";
 		}
 	
-	}
-
-	{ // Test simple synthesis
-		VoxBox::SSynthesisResult result = engine->Synthesize(test_phrase);
-		if (!result.IsEmpty()) {
-			std::cout << "[VoxBox] Simple audio synthesis succeeded: " << result.SampleCount() << " samples\n";
-		}
-		else {
-			std::cerr << "[VoxBox] Simple audio synthesis returned an empty buffer!\n";
-		}
 	}
 
 	{ // Test audio synthesis to WAV file

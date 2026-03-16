@@ -8,14 +8,14 @@ namespace VoxBox {
 	
 	namespace Utilities {
 		static void WhisperProgressCallback(whisper_context* a_context, whisper_state* a_state, int a_progress, void* a_user_data) {
-			auto* tracker = static_cast<CCoreSTTProgressTracker*>(a_user_data);
+			auto* tracker = static_cast<CSTTProgressTracker*>(a_user_data);
 			if (tracker) {
 				tracker->ReportProgress(a_progress); // Current part would be tracked internally
 			}
 		}
 
 		static bool WhisperAbortCallback(void* a_user_data) {
-			auto* tracker = static_cast<CCoreSTTProgressTracker*>(a_user_data);
+			auto* tracker = static_cast<CSTTProgressTracker*>(a_user_data);
 			return tracker && tracker->IsAborted();
 		}
 

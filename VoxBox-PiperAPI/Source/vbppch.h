@@ -49,7 +49,7 @@
 #include <thread>
 #include <vector>
 
-#include "../../VoxBox-Common/Source/VBCommon.h"  // TODO: adjust w/ releases and/or fix premake files
+#include <VBCommon.h>
 
 // DLL Macros
 #ifdef VB_PLATFORM_WINDOWS

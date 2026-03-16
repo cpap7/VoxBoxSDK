@@ -1,10 +1,10 @@
 #pragma once
+#include <VBCommon.h>
 
 #include <string>
 #include <vector>
 #include <cstdint>
 
-//#include "../../VoxBox-Common/Source/VBCommon.h"
 
 namespace VoxBox {
 	struct SInferenceResult {
