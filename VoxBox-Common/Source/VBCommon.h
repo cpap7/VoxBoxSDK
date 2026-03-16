@@ -88,9 +88,6 @@
 #include <functional>
 
 namespace VoxBox {
-    // Common callback function types
-    using ProgressCallbackFn = std::function<void(int a_progress)>;
-
     // Common result codes
     enum class EResultCode : uint8_t {
         Unknown = 0,
@@ -106,7 +103,7 @@ namespace VoxBox {
         
     };
 
-    std::string ResultCodeToString(EResultCode a_result_code) {        
+    inline std::string ResultCodeToString(EResultCode a_result_code) {        
         switch (a_result_code) {
             case EResultCode::Success:          return "SUCCESS";
             case EResultCode::NotInitialized:   return "NOT INITIALIZED";
@@ -121,7 +118,7 @@ namespace VoxBox {
         return "UNKNOWN RESULT CODE";
     }
 
-    EResultCode StringToResultCode(const std::string& a_string) {
+    inline EResultCode StringToResultCode(const std::string& a_string) {
         if (a_string == "SUCCESS")              { return EResultCode::Success;          }
         if (a_string == "NOT INITIALIZED")      { return EResultCode::NotInitialized;   }
         if (a_string == "INVALID PARAMETER(S)") { return EResultCode::InvalidParameter; }
