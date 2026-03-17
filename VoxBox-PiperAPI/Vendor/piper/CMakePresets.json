@@ -9,7 +9,7 @@
     {
       "name": "vb-x64-windows-debug",
       "displayName": "VoxBox: Windows (64-bit) debug build configuration",
-      "binaryDir": "${sourceDir}/debug",
+      "binaryDir": "${sourceDir}/../../../ext-bin/piper/debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
       }
@@ -17,7 +17,7 @@
     {
       "name": "vb-x64-windows-release",
       "displayName": "VoxBox: Windows (64-bit) release build configuration",
-      "binaryDir": "${sourceDir}/release",
+      "binaryDir": "${sourceDir}/../../../ext-bin/piper/release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }

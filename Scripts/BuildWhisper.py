@@ -1,17 +1,32 @@
 import subprocess
+import shutil
+import os
+import stat
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 ROOT_DIR = SCRIPT_DIR.parent
 WHISPER_DIR = ROOT_DIR / "VoxBox-WhisperAPI" / "Vendor" / "whisper.cpp"
+BUILD_DIR = ROOT_DIR / "ext-bin" / "whisper.cpp"  # Short path for CMake build (avoids MAX_PATH)
+
+def _force_rmtree(path: Path):
+    """Remove a directory tree, forcing removal of read-only files (e.g., .git pack files on Windows)."""
+    def _on_rm_error(func, filepath, _exc_info):
+        os.chmod(filepath, stat.S_IWRITE)
+        func(filepath)
+    shutil.rmtree(path, onerror=_on_rm_error)
 
 def clean():
-    """Remove cached build directories."""
-    for folder in ["debug", "release"]:
-        cache_dir = WHISPER_DIR / folder
-        if cache_dir.exists():
-            print(f"  Removing {cache_dir}")
-            shutil.rmtree(cache_dir)
+    """Remove cached build directories from both locations."""
+    for config in ["debug", "release"]:
+        for parent in [WHISPER_DIR, BUILD_DIR]:
+            cache_dir = parent / config
+            if cache_dir.exists():
+                print(f"  Removing {cache_dir}")
+                _force_rmtree(cache_dir)
+    # Remove build_cache dir itself if empty
+    if BUILD_DIR.exists() and not any(BUILD_DIR.iterdir()):
+        BUILD_DIR.rmdir()
 
 def build(config: str, force_rebuild: bool = False):
     print(f"\n{'='*50}")
@@ -19,42 +34,53 @@ def build(config: str, force_rebuild: bool = False):
     print('='*50)
 
     preset = f"vb-x64-win-{config.lower()}-static-vulkan"
-    cache_dir = WHISPER_DIR / config.lower()
+    cache_dir = BUILD_DIR / config.lower()       # Where CMake builds (short path)
+    final_dir = WHISPER_DIR / config.lower()        # Where premake links from
 
     # Force rebuild if requested
-    if force_rebuild and cache_dir.exists():
-        print(f"  Cleaning {config} cache...")
-        shutil.rmtree(cache_dir)
+    if force_rebuild:
+        for d in [cache_dir, final_dir]:
+            if d.exists():
+                print(f"  Cleaning {d}...")
+                _force_rmtree(d)
 
-    # Check if already built
-    whisper_lib = cache_dir / "src" / config / "whisper.lib"
+    # Check if already relocated
+    whisper_lib = final_dir / "src" / config / "whisper.lib"
     if whisper_lib.exists():
         print(f"  Found cached {config} build, skipping...")
         print(f"[SETUP] Whisper.cpp ({config}) complete (from cache)")
         return
 
-    # Configure CMake
+    # Configure CMake (builds to ext-bin/ at solution root)
     print(f"  Configuring with preset: {preset}")
     subprocess.run(["cmake", "--preset", preset], cwd=WHISPER_DIR, check=True)
 
-    # Build using presets
-    print(f" Building...")
+    # Build
+    print(f"  Building...")
     subprocess.run(["cmake", "--build", "--preset", preset], cwd=WHISPER_DIR, check=True)
-    
+
+    # Relocate build output into Vendor/whisper.cpp/<config>/
+    print(f"  Relocating build output to {final_dir}...")
+    if final_dir.exists():
+        _force_rmtree(final_dir)
+    shutil.move(str(cache_dir), str(final_dir))
+
+    # Clean up build_cache if empty
+    if BUILD_DIR.exists() and not any(BUILD_DIR.iterdir()):
+        BUILD_DIR.rmdir()
+
     # Verify output
     if whisper_lib.exists():
         print(f"[SETUP] Whisper.cpp ({config}) complete")
     else:
         print(f"[ERROR] whisper.lib not found at expected path: {whisper_lib}")
-        # List what was actually created
-        print(f"  Contents of {cache_dir / 'src'}:")
-        if (cache_dir / "src").exists():
-            for item in (cache_dir / "src").rglob("*.lib"):
+        print(f"  Contents of {final_dir / 'src'}:")
+        if (final_dir / "src").exists():
+            for item in (final_dir / "src").rglob("*.lib"):
                 print(f"    {item}")
 
 if __name__ == "__main__":
     import sys
     force = "--force" in sys.argv
     build("Debug", force)
-    build("Release", force)    
-    
+    build("Release", force)

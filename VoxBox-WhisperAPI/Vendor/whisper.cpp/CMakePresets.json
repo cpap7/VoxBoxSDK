@@ -11,7 +11,7 @@
       "displayName": "VB: x64 Debug Static (native)",
       "description": "VoxBox: Windows(64-bit) Static Lib Debug build (w/ Vulkan)",
       "generator": "Visual Studio 18 2026",
-      "binaryDir": "${sourceDir}/debug",
+      "binaryDir": "${sourceDir}/../../../ext-bin/whisper.cpp/debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_CXX_STANDARD": "20",
@@ -28,7 +28,7 @@
       "displayName": "VB: x64 Release Static (native)",
       "description": "VoxBox: Windows(64-bit) Static Lib Release build (w/ Vulkan)",
       "generator": "Visual Studio 18 2026",
-      "binaryDir": "${sourceDir}/release",
+      "binaryDir": "${sourceDir}/../../../ext-bin/whisper.cpp/release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_CXX_STANDARD": "20",
