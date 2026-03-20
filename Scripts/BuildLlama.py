@@ -7,7 +7,7 @@ from pathlib import Path
 SCRIPT_DIR = Path(__file__).resolve().parent
 ROOT_DIR = SCRIPT_DIR.parent
 LLAMA_DIR = ROOT_DIR / "VoxBox-LlamaAPI" / "Vendor" / "llama.cpp"
-BUILD_DIR = ROOT_DIR / "ext-bin" / "llama.cpp"  # Short path for CMake build (avoids MAX_PATH)
+BUILD_DIR = Path("C:/VoxBoxSDK-Cache/llama.cpp")   # Short path for CMake build (avoids MAX_PATH)
 
 def _force_rmtree(path: Path):
     """Remove a directory tree, forcing removal of read-only files (e.g., .git pack files on Windows)."""

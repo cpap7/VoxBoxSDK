@@ -6,7 +6,7 @@
             "inherits": [ "base", "debug", "static", "vulkan" ],
             "displayName": "VoxBox: Windows x64 Debug Static (Vulkan)",
             "generator": "Visual Studio 18 2026",
-            "binaryDir": "${sourceDir}/../../../ext-bin/llama.cpp/debug",
+            "binaryDir": "C:/VoxBoxSDK-Cache/llama.cpp/debug",
             "cacheVariables": {
                 "CMAKE_CXX_STANDARD": "17",
                 "CMAKE_CXX_STANDARD_REQUIRED": "ON",
@@ -22,7 +22,7 @@
             "inherits": [ "base", "release", "static", "vulkan" ],
             "displayName": "VoxBox: Windows x64 Release Static (Vulkan)",
             "generator": "Visual Studio 18 2026",
-            "binaryDir": "${sourceDir}/../../../ext-bin/llama.cpp/release",
+            "binaryDir": "C:/VoxBoxSDK-Cache/llama.cpp/release",
             "cacheVariables": {
                 "CMAKE_CXX_STANDARD": "17",
                 "CMAKE_CXX_STANDARD_REQUIRED": "ON",
