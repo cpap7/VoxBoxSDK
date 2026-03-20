@@ -23,9 +23,13 @@ project "VoxBox-PiperAPI"
     includedirs {
         "Source",
         "../VoxBox-Common/Source",
-        "Vendor/piper/build/pi/include",
         "Vendor/piper/src/cpp",
-        "Vendor/piper/build/si/include",
+    }
+
+    links {
+        "espeak-ng",
+        "piper_phonemize",
+        "onnxruntime",
     }
 
     filter "system:windows"
@@ -37,23 +41,12 @@ project "VoxBox-PiperAPI"
         openmp "On"
         buildoptions { "/utf-8", "/Wall" }   -- /utf-8 since piper uses spdlog
         disablewarnings { "4711", "5045" }   -- Disable a couple warnings 
-        libdirs { "Vendor/piper/build/pi/lib" }
-        links {
-            "espeak-ng",
-            "piper_phonemize",
-            "onnxruntime",
-        }
         linkoptions { "/WX" }               -- Treat linker warnings as errors
 
 
     filter "system:linux"
         pic "On"
-        libdirs { "Vendor/piper/build/pi/lib" }
-        links {
-            "espeak-ng",
-            "onnxruntime",
-            "piper_phonemize",
-        }
+        
 
     filter "configurations:Debug"
         symbols "On"
@@ -61,6 +54,11 @@ project "VoxBox-PiperAPI"
         links {
             "msvcprtd"    
         }
+        includedirs {
+            "Vendor/piper/debug/pi/include",
+            "Vendor/piper/debug/si/include",
+        }
+        libdirs { "Vendor/piper/debug/pi/lib" }
 
     filter "configurations:Release"
         optimize "On"
@@ -69,3 +67,8 @@ project "VoxBox-PiperAPI"
         links {
             "msvcprt"
         }
+        includedirs {
+            "Vendor/piper/release/pi/include",
+            "Vendor/piper/release/si/include",    
+        }
+        libdirs { "Vendor/piper/release/pi/lib" }
