@@ -29,7 +29,7 @@ static VoxBox::SLLMConfig ConvertLLMConfig(const VB_LLM_Config_t* a_config) {
 		config.m_sampler_config.m_grammar		= a_config->m_grammar ? a_config->m_grammar : "";
 		
 		// Model config
-		config.m_model_config.m_model_file_path = a_config->m_model_file_path ? a_config->m_model_file_path : "";
+		config.m_model_config.m_model_path		= a_config->m_model_file_path ? a_config->m_model_file_path : "";
 		config.m_model_config.m_n_gpu_layers	= a_config->m_n_gpu_layers;
 		// TODO: Add & more config params for model config here
 

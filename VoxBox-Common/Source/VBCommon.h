@@ -86,6 +86,7 @@
 #ifdef __cplusplus
 #include <cstdint>
 #include <functional>
+#include <string>
 
 namespace VoxBox {
     // Common result codes

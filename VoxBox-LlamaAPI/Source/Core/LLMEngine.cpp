@@ -55,8 +55,19 @@ namespace VoxBox {
 		}
 	}
 
+	/* NOTE: Not thread safe -- assume single-instance usage for now. 
+	*  Might need to change later with something like: 
+	*/
+	/*
+		static std::once_flag s_llama_backend_flag;
+		std::call_once(s_llama_backend_flag, [] {
+			llama_backend_init();
+			llama_numa_init(GGML_NUMA_STRATEGY_DISABLED);
+		});
+	*/
 	static bool s_llama_backend_initialized = false;
-	
+	static bool s_llama_common_initialized = false;
+
 	static void InitLlamaBackendIfNecessary() {
 		if (!s_llama_backend_initialized) {
 			llama_backend_init();
@@ -65,7 +76,6 @@ namespace VoxBox {
 		}
 	}
 
-	static bool s_llama_common_initialized = false;
 
 	static void InitLlamaCommonIfNecessary() {
 		if (!s_llama_common_initialized) {
@@ -486,7 +496,7 @@ namespace VoxBox {
 		m_moe_overrides.push_back({ nullptr, nullptr });
 		model_params.tensor_buft_overrides = m_moe_overrides.data();
 
-		m_llama_model = llama_load_model_from_file(vb_model_cfg.m_model_file_path.c_str(), model_params);
+		m_llama_model = llama_load_model_from_file(vb_model_cfg.m_model_path.c_str(), model_params);
 	}
 
 	void CLLMEngineImpl::CreateContext() {

@@ -1,4 +1,5 @@
 #pragma once
+#include <VBCommon.h>
 
 #ifdef __cplusplus
     #include <string>
@@ -44,6 +45,8 @@ extern "C" {
 
     // Transcription
     VB_STT_API VB_STT_Result_t VB_CALL VB_STT_Transcribe(VB_STT_EngineHandle_t a_engine, const float* a_audio, int a_sample_count);
+
+    // TODO: change return type to char*
     VB_STT_API const char* VB_CALL VB_STT_TranscribeSimple(VB_STT_EngineHandle_t a_engine, const float* a_audio, int a_sample_count);
     VB_STT_API const char* VB_CALL VB_STT_DetectLanguage(VB_STT_EngineHandle_t a_engine, const float* a_audio, int a_sample_count);
 

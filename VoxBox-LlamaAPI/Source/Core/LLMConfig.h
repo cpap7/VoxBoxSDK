@@ -7,7 +7,7 @@
 namespace VoxBox {
 	// Model loading params struct (maps to llama_model_params)
 	struct SLLMModelConfig {
-		std::string m_model_file_path	= "";
+		std::string m_model_path		= "";
 		int32_t m_n_gpu_layers			= -1;		// -1 = offload all layers to GPU
 
 		// Mixture of Experts (MoE) CPU offloading --> for building llama_model_params.tensor_buft_overrides
