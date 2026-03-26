@@ -782,7 +782,7 @@ namespace VoxBox {
 				}
 
 				llama_sampler_accept(m_llama_sampler, irq_token);
-				
+				reached_eog = true; // Valid interrupt = EOG
 				++n_current;
 				break;
 			}
@@ -827,14 +827,16 @@ namespace VoxBox {
 			m_last_token_type = token_type;
 			
 			// Execute callback
-			// return true = interrupt requested
+			// return 0 = interrupt requested
 			if (m_config.m_token_callback_function && !piece.empty()) {
-				irq = m_config.m_token_callback_function(
+				int cb_result = m_config.m_token_callback_function(
 					static_cast<int>(new_token),
 					piece.c_str(),
 					token_type,
 					nullptr
 				);
+
+				irq = (cb_result == 0);
 			}
 
 			// is_thinking should be false after callback sees ThinkEnd
