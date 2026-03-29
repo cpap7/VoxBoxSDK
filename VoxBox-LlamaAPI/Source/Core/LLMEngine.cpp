@@ -367,8 +367,7 @@ namespace VoxBox {
 		// Binary format: [last_tok_type (int)] [tok_cnt (int)] [size (size_t)] [data (uint8_t[])]
 		
 		if (!m_context_state_snapshot || m_context_state_snapshot->IsEmpty()) {
-			printf("[VoxBox LLM] Error: No valid snapshot to write.\n");
-			return false;
+			SnapshotUpdate();
 		}
 		
 		if (!a_file_path) {
