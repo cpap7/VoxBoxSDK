@@ -48,3 +48,6 @@
 /VoxBox-LlamaAPI/bin-int/Debug-x86_64
 /VoxBox-LlamaAPI/ProjectNotes.txt
 /VoxBox-Common/VoxBox-Common.vcxproj.filters
+/VoxBox-Common/obj/Release
+/VoxBox-LlamaAPI/bin/Release-x86_64
+/VoxBox-LlamaAPI/bin-int/Release-x86_64
