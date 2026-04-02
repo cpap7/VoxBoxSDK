@@ -35,6 +35,7 @@ extern "C" {
         char* m_text;                     // Caller must free via VB_STT_FreeString
         float* m_word_probabilities;      // Caller must free via VB_STT_FreeFloatArray
         int m_word_count;
+        float m_confidence;               // Aggregate confidence based on word probabilities [0.0f - 1.0f]
         bool m_success;
     } VB_STT_Result_t;
 

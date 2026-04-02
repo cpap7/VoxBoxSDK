@@ -27,9 +27,9 @@ namespace VoxBox {
 		void Init();
 		void Shutdown();
 
-		STranscriptResult Transcribe(const float* a_audio_data, int a_audio_length, bool a_get_word_probabilities = false);
+		STranscriptResult Transcribe(const float* a_audio_data, int a_audio_length, bool a_get_word_probabilities = true);
 		STranscriptResult TranscribeParts(const float* a_audio_data, const std::vector<int>& a_part_starts, 
-			const std::vector<int>& a_part_ends, bool a_get_word_probabilities = false);
+			const std::vector<int>& a_part_ends, bool a_get_word_probabilities = true);
 
 		SLanguageResult DetectLanguage(const float* a_audio_data, int a_audio_length);
 

@@ -97,9 +97,18 @@ namespace VoxBox {
 		if (whisper_full(m_context, params, a_audio_data, a_audio_length) != 0) {
 			return result;
 		}
-
-		result.m_text			= ExtractTextTokens(result.m_word_probabilities, a_get_word_probabilities);
+		
+		result.m_text = ExtractTextTokens(result.m_word_probabilities, a_get_word_probabilities);
 		result.m_result_code	= EResultCode::Success;
+
+		// Determine confidence based on word probabilities
+		if (!result.m_word_probabilities.empty()) {
+			float sum = 0.0f;
+			for (float prob : result.m_word_probabilities) {
+				sum += prob;
+			}
+			result.m_confidence = sum / static_cast<float>(result.m_word_probabilities.size());
+		}
 
 		return result;
 	}
@@ -174,7 +183,14 @@ namespace VoxBox {
 
 		result.m_text			= full_text;
 		result.m_result_code	= (!m_progress_tracker.IsAborted()) ? EResultCode::Success : EResultCode::Cancelled;
-
+		// Determine confidence based on word probabilities
+		if (!result.m_word_probabilities.empty()) {
+			float sum = 0.0f;
+			for (float prob : result.m_word_probabilities) {
+				sum += prob;
+			}
+			result.m_confidence = sum / static_cast<float>(result.m_word_probabilities.size());
+		}
 		return result;
 	}
 

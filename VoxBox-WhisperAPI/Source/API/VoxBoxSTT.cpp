@@ -70,6 +70,7 @@ VB_STT_API VB_STT_Result_t VB_CALL VB_STT_Transcribe(VB_STT_EngineHandle_t a_eng
         nullptr,    // m_text
         nullptr,    // m_word_probabilities
         0,          // m_word_count
+        0.0f,       // m_confidence
         false       // m_success
     };
 
@@ -100,7 +101,7 @@ VB_STT_API VB_STT_Result_t VB_CALL VB_STT_Transcribe(VB_STT_EngineHandle_t a_eng
                 std::memcpy(c_transcript_result.m_word_probabilities, transcript_result.m_word_probabilities.data(), probabilities_size);
             }
         }
-
+        c_transcript_result.m_confidence = transcript_result.m_confidence;
         c_transcript_result.m_success = true;
     }
     catch (...) {
@@ -205,6 +206,7 @@ VB_STT_API void VB_CALL VB_STT_FreeResult(VB_STT_Result_t* a_result) {
         }
 
         a_result->m_word_count  = 0;
+        a_result->m_confidence  = 0.0f;
         a_result->m_success     = false;
     }
 }
