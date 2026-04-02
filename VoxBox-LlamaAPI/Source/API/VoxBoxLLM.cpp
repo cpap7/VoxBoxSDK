@@ -202,8 +202,8 @@ VB_LLM_API void VB_CALL VB_LLM_SetTokenCallback(VB_LLM_EngineHandle_t a_engine_h
 	}
 
 	// NOTE:
-	// C callback return:   int,  non-zero = interrupt
-	// C++ callback return: bool, true = interrupt
+	// C callback return:   int, 0 = stop, non-zero = continue
+	// C++ callback return: bool, false = stop, true = continue
 
 	llm_engine->SetTokenCallback(
 		[a_callback](int a_token_id, const char* a_token_text, int a_token_type, const float* a_probabilities) -> bool {
@@ -373,6 +373,54 @@ namespace VoxBox {
 	void CLLMEngine::SetSamplerConfig(const SLLMSamplerConfig& a_config) {
 		if (m_llm_engine) {
 			m_llm_engine->SetSamplerConfig(a_config);
+		}
+	}
+
+	void CLLMEngine::SetSamplerGrammar(std::string& a_grammar) {
+		if (m_llm_engine) {
+			auto config = m_llm_engine->GetSamplerConfig();
+			config.m_grammar = a_grammar;
+			m_llm_engine->SetSamplerConfig(config);
+		}
+	}
+
+	void CLLMEngine::SetSeed(uint32_t a_seed) {
+		if (m_llm_engine) {
+			auto config = m_llm_engine->GetSamplerConfig();
+			config.m_seed = a_seed;
+			m_llm_engine->SetSamplerConfig(config);
+		}
+	}
+	
+	void CLLMEngine::SetTopK(int32_t a_top_k) {
+		if (m_llm_engine) {
+			auto config = m_llm_engine->GetSamplerConfig();
+			config.m_top_k = a_top_k;
+			m_llm_engine->SetSamplerConfig(config);
+		}
+	}
+	
+	void CLLMEngine::SetTopP(float a_top_p) {
+		if (m_llm_engine) {
+			auto config = m_llm_engine->GetSamplerConfig();
+			config.m_top_p = a_top_p;
+			m_llm_engine->SetSamplerConfig(config);
+		}
+	}
+	
+	void CLLMEngine::SetMinP(float a_min_p) {
+		if (m_llm_engine) {
+			auto config = m_llm_engine->GetSamplerConfig();
+			config.m_min_p = a_min_p;
+			m_llm_engine->SetSamplerConfig(config);
+		}
+	}
+
+	void CLLMEngine::SetTemperature(float a_temp) {
+		if (m_llm_engine) {
+			auto config = m_llm_engine->GetSamplerConfig();
+			config.m_temp = a_temp;
+			m_llm_engine->SetSamplerConfig(config);
 		}
 	}
 

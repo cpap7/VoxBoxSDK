@@ -69,14 +69,24 @@ namespace VoxBox {
 		// Getters
 		inline bool IsInitialized() const			{ return m_is_initialized; }
 		inline const SLLMConfig& GetConfig() const	{ return m_config; }
+		inline const SLLMSamplerConfig& GetSamplerConfig() const	{ return m_config.m_sampler_config; }
+		inline const SLLMModelConfig& GetModelConfig() const		{ return m_config.m_model_config; }
+		inline const SLLMPromptConfig& GetPromptConfig() const		{ return m_config.m_prompt_config; }
+		inline const SLLMContextConfig& GetContextConfig() const	{ return m_config.m_context_config; }
 		
-		// Setters
+		// Runtime-safe setters (no reinit)
 		void SetTokenCallback(TokenCallbackFn a_callback);
 		void SetSamplerConfig(const SLLMSamplerConfig& a_sampler_config);
-	
+
+		// TODO: Reinit setter functions
+		void SetModelConfig(const SLLMModelConfig& a_model_config);
+		void SetPromptConfig(const SLLMPromptConfig& a_prompt_config);
+		void SetContextConfig(const SLLMContextConfig& a_context_config);
+
 	private: // Internal helpers
 		void LoadModel();
 		void CreateContext();
+		void RebuildSampler();
 		void CreateSampler();
 		void ClearMemory();																// Clears KV cache
 

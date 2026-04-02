@@ -451,16 +451,19 @@ namespace VoxBox {
 	
 	void CLLMEngineImpl::SetSamplerConfig(const SLLMSamplerConfig& a_sampler_config) {
 		m_config.m_sampler_config = a_sampler_config;
-		
-		// Rebuild sampler chain w/ new config if engine is already initialized & sampler is built
-		if (m_is_initialized) {
-			if (m_llama_sampler) {
-				llama_sampler_free(m_llama_sampler);
-				m_llama_sampler = nullptr;
-			}
-			CreateSampler();
-		}
+		RebuildSampler();
+	}
+	
+	void CLLMEngineImpl::SetModelConfig(const SLLMModelConfig& a_model_config) {
+		// TODO
+	}
 
+	void CLLMEngineImpl::SetPromptConfig(const SLLMPromptConfig& a_prompt_config) {
+		// TODO
+	}
+	
+	void CLLMEngineImpl::SetContextConfig(const SLLMContextConfig& a_context_config) {
+		// TODO
 	}
 
 	void CLLMEngineImpl::LoadModel() {
@@ -547,6 +550,17 @@ namespace VoxBox {
 			ctx_params.pooling_type = pooling_type;
 		}
 		m_llama_context = llama_init_from_model(m_llama_model, ctx_params);
+	}
+
+	void CLLMEngineImpl::RebuildSampler() {
+		// Rebuild sampler chain w/ new config if engine is already initialized & sampler is built
+		if (m_is_initialized) {
+			if (m_llama_sampler) {
+				llama_sampler_free(m_llama_sampler);
+				m_llama_sampler = nullptr;
+			}
+			CreateSampler();
+		}
 	}
 
 	void CLLMEngineImpl::CreateSampler() {

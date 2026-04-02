@@ -155,7 +155,23 @@ namespace VoxBox {
 		// Token utils
 		int GetTokenCount(const std::string& a_text, bool a_add_special_char = true);
 		void SetTokenCallback(TokenCallbackFn a_callback);
+
+		// Sampler setters
 		void SetSamplerConfig(const SLLMSamplerConfig& a_config);
+		void SetSamplerGrammar(std::string& a_grammar);
+		void SetSeed(uint32_t a_seed = -1);				// -1 = random; 0xFFFFFFFF = LLAMA_DEFAULT_SEED;
+		void SetTopK(int32_t a_top_k = 0);				// (<= 0) = vocab size
+		void SetTopP(float a_top_p = 1.0f);				// 1.0f = disabled
+		void SetMinP(float a_min_p = 0.0f);				// 0.0f = disabled
+		void SetTemperature(float a_temp = 0.0f);		// Temp <= 0.0 = sample greedily & do not output probability
+
+		// Model config setters
+		//void SetModelPath(const std::string& a_model_path = "");
+		//void SetGPULayers(int32_t a_n_gpu_layers = -1);
+		//void SetCPUMoE(int32_t a_n_cpu_moe = 0);
+		//void UseCPUMoE(bool a_flag = false);
+		//void UseMMap(bool a_flag = true);
+		//void UseMLock(bool a_flag = false);
 
 		// Control
 		void Reinit(const SLLMConfig& a_config);
