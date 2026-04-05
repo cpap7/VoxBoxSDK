@@ -801,7 +801,7 @@ namespace VoxBox {
 			}
 
 			// Sample next token
-			llama_token new_token = llama_sampler_sample(m_llama_sampler, m_llama_context, -1);
+			llama_token new_token = llama_sampler_sample(m_llama_sampler, m_llama_context, m_config.m_sampler_config.m_seed);
 			bool is_eog = llama_vocab_is_eog(vocab, new_token);
 			bool is_control = llama_vocab_is_control(vocab, new_token);
 			std::string piece = common_token_to_piece(m_llama_context, new_token, true);
