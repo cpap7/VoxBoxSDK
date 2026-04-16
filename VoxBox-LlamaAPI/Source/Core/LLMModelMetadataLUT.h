@@ -10,7 +10,6 @@ namespace VoxBox {
 	// Model names
 
 	static inline std::vector<std::string> s_qwen_model_names = {
-		// Model names
 		"Qwen2-0.5B-Instruct",
 		"Qwen2-1.5B-Instruct",
 		"qwen2-1_5b-instruct",

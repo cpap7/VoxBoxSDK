@@ -104,19 +104,22 @@ namespace VoxBox {
         
     };
 
-    inline std::string ResultCodeToString(EResultCode a_result_code) {        
+    inline std::string ResultCodeToString(EResultCode a_result_code) {
+        std::string result_string = "UNKNOWN";
+
         switch (a_result_code) {
-            case EResultCode::Success:          return "SUCCESS";
-            case EResultCode::NotInitialized:   return "NOT INITIALIZED";
-            case EResultCode::InvalidParameter: return "INVALID PARAMETER(S)";
-            case EResultCode::ModelLoadFailed:  return "MODEL LOAD FAILED";
-            case EResultCode::ProcessingFailed: return "PROCESSING FAILED";
-            case EResultCode::Cancelled:        return "CANCELLED";
-            case EResultCode::OutOfMemory:      return "OUT OF MEMORY";
-            case EResultCode::InternalError:    return "INTERNAL ERROR";
+            case EResultCode::Success:          result_string = "SUCCESS";              break;
+            case EResultCode::NotInitialized:   result_string = "NOT INITIALIZED";      break;
+            case EResultCode::InvalidParameter: result_string = "INVALID PARAMETER(S)"; break;
+            case EResultCode::ModelLoadFailed:  result_string = "MODEL LOAD FAILED";    break;
+            case EResultCode::ProcessingFailed: result_string = "PROCESSING FAILED";    break;
+            case EResultCode::Cancelled:        result_string = "CANCELLED";            break;
+            case EResultCode::OutOfMemory:      result_string = "OUT OF MEMORY";        break;
+            case EResultCode::InternalError:    result_string = "INTERNAL ERROR";       break;
+            default: break;
         }
 
-        return "UNKNOWN RESULT CODE";
+        return result_string;
     }
 
     inline EResultCode StringToResultCode(const std::string& a_string) {

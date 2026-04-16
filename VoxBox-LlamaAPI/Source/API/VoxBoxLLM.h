@@ -32,6 +32,7 @@ extern "C" {
 	typedef struct VB_LLM_Handle_t* VB_LLM_EngineHandle_t;
 
 	// C config struct (for interop)
+	// See Core/LLMConfig.h for more details on what each member is responsible for
 	typedef struct {
 		const char* m_model_file_path;
 		const char* m_grammar;			
@@ -46,18 +47,30 @@ extern "C" {
 		const char* m_think_beg_delim;
 		const char* m_think_end_delim;
 		
-		uint32_t m_n_ctx;				//  0 = model default
-		uint32_t m_n_threads;			// -1 = auto
-		uint32_t m_seed;				// -1 = random
-		int32_t m_n_gpu_layers;			// -1 = offload all
+		uint32_t m_n_ctx;				//  0 = Model default
+		uint32_t m_n_batch;				//  1 = Default; Logical max batch size
+		uint32_t m_n_ubatch;			//  1 = Default; Physical max batch size
+		uint32_t m_n_seq_max;			//  1 = Default; Max sequences (recurrent models)
+		uint32_t m_seed;				// -1 = Random
 
+		int32_t m_n_threads;			// -1 = Auto
+		int32_t m_n_gpu_layers;			// -1 = Offload all
+		int32_t m_n_cpu_moe;			//  0 = Default; Keep 1st N MoE layers within CPU (which will override m_cpu_moe)
+		int32_t m_threads_batch;		//  0 = Default; Threads for batch processing
+		int32_t m_flash_attention;		// -1 = Auto, 0 = Disabled, 1 = Enabled
+		int32_t m_pooling_type;			// -1 = Unspecified (derive from model)
 		int32_t m_top_k;
+
 		float m_top_p;
 		float m_min_p;
 		float m_temp;
 
-		int m_try_prompts_by_model;		// 0 or false = default
-		int m_embeddings;				// 0 or false = default
+		int m_cpu_moe;					// 0 (or false) = default; Keep ALL MoE weights within CPU
+		int m_try_prompts_by_model;		// 0 (or false) = default
+		int m_embeddings;				// 0 (or false) = default
+		int m_use_mlock;				// 0 (or false) = default
+		int m_use_mmap;					// 1 (or true)  = default
+		int m_offload_kqv;				// 1 (or true)  = default; Offload KQV to GPU
 
 	} VB_LLM_Config_t;
 

@@ -21,22 +21,32 @@ static VoxBox::SLLMConfig ConvertLLMConfig(const VB_LLM_Config_t* a_config) {
 		config.m_prompt_config.m_try_prompts_by_model	= a_config->m_try_prompts_by_model != 0;
 
 		// Sampler config
-		config.m_sampler_config.m_seed			= a_config->m_seed;
-		config.m_sampler_config.m_top_k			= a_config->m_top_k;
-		config.m_sampler_config.m_top_p			= a_config->m_top_p;
-		config.m_sampler_config.m_min_p			= a_config->m_min_p;
-		config.m_sampler_config.m_temp			= a_config->m_temp;
-		config.m_sampler_config.m_grammar		= a_config->m_grammar ? a_config->m_grammar : "";
+		config.m_sampler_config.m_seed					= a_config->m_seed;
+		config.m_sampler_config.m_top_k					= a_config->m_top_k;
+		config.m_sampler_config.m_top_p					= a_config->m_top_p;
+		config.m_sampler_config.m_min_p					= a_config->m_min_p;
+		config.m_sampler_config.m_temp					= a_config->m_temp;
+		config.m_sampler_config.m_grammar				= a_config->m_grammar ? a_config->m_grammar : "";
 		
 		// Model config
-		config.m_model_config.m_model_path		= a_config->m_model_file_path ? a_config->m_model_file_path : "";
-		config.m_model_config.m_n_gpu_layers	= a_config->m_n_gpu_layers;
-		// TODO: Add & more config params for model config here
+		config.m_model_config.m_model_path				= a_config->m_model_file_path ? a_config->m_model_file_path : "";
+		config.m_model_config.m_n_gpu_layers			= a_config->m_n_gpu_layers;
+		config.m_model_config.m_n_cpu_moe				= a_config->m_n_cpu_moe;
+		config.m_model_config.m_cpu_moe					= a_config->m_cpu_moe != 0;
+		config.m_model_config.m_use_mmap				= a_config->m_use_mmap != 0;
+		config.m_model_config.m_use_mlock				= a_config->m_use_mlock != 0;
 
 		// Context config
-		config.m_context_config.m_n_ctx			= a_config->m_n_ctx;
-		config.m_context_config.m_n_threads		= static_cast<int>(a_config->m_n_threads);
-		config.m_context_config.m_embeddings	= a_config->m_embeddings != 0;
+		config.m_context_config.m_n_ctx					= a_config->m_n_ctx;
+		config.m_context_config.m_n_batch				= a_config->m_n_batch;
+		config.m_context_config.m_n_ubatch				= a_config->m_n_ubatch;
+		config.m_context_config.m_n_seq_max				= a_config->m_n_seq_max;
+		config.m_context_config.m_n_threads				= a_config->m_n_threads;
+		config.m_context_config.m_threads_batch			= a_config->m_threads_batch;
+		config.m_context_config.m_flash_attention_type	= static_cast<VoxBox::EFlashAttentionType>(a_config->m_flash_attention);
+		config.m_context_config.m_pooling_type			= static_cast<VoxBox::EPoolingType>(a_config->m_pooling_type);
+		config.m_context_config.m_embeddings			= a_config->m_embeddings != 0;
+		config.m_context_config.m_offload_kqv			= a_config->m_offload_kqv != 0;
 	}
 
 	return config;
@@ -312,18 +322,31 @@ VB_LLM_API VB_LLM_Config_t VB_CALL VB_LLM_GetDefaultConfig() {
 	config.m_think_beg_delim		= nullptr;
 	config.m_think_end_delim		= nullptr;
 
-	config.m_n_ctx			= 0;	// Vocab size
-	config.m_n_threads		= -1;	// Auto-detect
-	config.m_seed			= -1;	// Random
-	config.m_n_gpu_layers	= -1;	// Offload all
+	config.m_n_ctx					= 0;	// Vocab size
+	config.m_n_threads				= -1;	// Auto-detect
+	config.m_seed					= -1;	// Random
+	config.m_n_gpu_layers			= -1;	// Offload all
+	config.m_n_cpu_moe				= 0;	// Keep 1st N MoE layers within CPU (which will override m_cpu_moe)
+	
+	config.m_n_batch				= 1;
+	config.m_n_ubatch				= 1;
+	config.m_n_seq_max				= 1;
+	config.m_threads_batch			= 0;
+	config.m_flash_attention		= -1;	// Auto
+	config.m_pooling_type			= -1;	// Unspecified (derive from model)
+	config.m_offload_kqv			= 1;	// C++ default = true
 
-	config.m_top_k			= 0;	
-	config.m_top_p			= 1.0f;	// Disabled
-	config.m_min_p			= 0.0f;	// Disabled
-	config.m_temp			= 0.0f;	// Greedy sampling + no probability output
+	// Sampler
+	config.m_top_k					= 0;	
+	config.m_top_p					= 1.0f;	// Disabled
+	config.m_min_p					= 0.0f;	// Disabled
+	config.m_temp					= 0.0f;	// Greedy sampling + no probability output
 
-	config.m_try_prompts_by_model	= 0;
-	config.m_embeddings				= 0;
+	config.m_cpu_moe				= 0;	// C++ default = false
+	config.m_try_prompts_by_model	= 0;	// C++ default = false
+	config.m_embeddings				= 0;	// C++ default = false
+	config.m_use_mlock				= 0;	// C++ default = false
+	config.m_use_mmap				= 1;	// C++ default = true
 
 	return config;
 }
